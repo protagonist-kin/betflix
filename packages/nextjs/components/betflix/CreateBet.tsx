@@ -28,21 +28,21 @@ export const CreateBet = () => {
   const { writeContractAsync } = useScaffoldWriteContract("Betflix");
 
   // Check subdomain availability
-  const { data: isSubdomainAvailable } = useScaffoldReadContract({
+  const { data: isSubdomainAvailable, error: subdomainError } = useScaffoldReadContract({
     contractName: "Betflix",
     functionName: "isSubdomainAvailable",
-    args: ensSubdomain ? [ensSubdomain] : undefined,
+    args: ensSubdomain && address ? [ensSubdomain.toLowerCase()] : [undefined],
   });
 
   // Get full ENS domain
-  const { data: fullDomain } = useScaffoldReadContract({
+  const { data: fullDomain, error: domainError } = useScaffoldReadContract({
     contractName: "Betflix",
     functionName: "getFullENSDomain",
-    args: ensSubdomain ? [ensSubdomain] : undefined,
+    args: ensSubdomain && address ? [ensSubdomain.toLowerCase()] : [undefined],
   });
 
   // Check if ENS is configured on the contract
-  const { data: ensDomainName } = useScaffoldReadContract({
+  const { data: ensDomainName, error: ensConfigError } = useScaffoldReadContract({
     contractName: "Betflix",
     functionName: "ensDomainName",
   });
@@ -52,7 +52,7 @@ export const CreateBet = () => {
       const response = await fetch("/api/pyth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId: PRICE_FEEDS[selectedFeed] }),
+        body: JSON.stringify({ priceId: PRICE_FEEDS[selectedFeed as keyof typeof PRICE_FEEDS] }),
       });
 
       if (!response.ok) throw new Error("Failed to fetch price data");
@@ -76,8 +76,8 @@ export const CreateBet = () => {
       return;
     }
 
-    if (parseFloat(betAmount) < 0.01) {
-      notification.error("Minimum bet amount is 0.01 ETH");
+    if (parseFloat(betAmount) < 0.0000000001) {
+      notification.error("Minimum bet amount is 0.0000000001 ETH");
       return;
     }
 
@@ -92,7 +92,14 @@ export const CreateBet = () => {
       return;
     }
 
-    // Check for invalid characters in subdomain (removed this validation since contract doesn't check it)
+    // Check for invalid characters - ENS only allows lowercase letters, numbers, and hyphens
+    // but cannot start or end with a hyphen
+    // const ensRegex = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
+    // if (!ensRegex.test(ensSubdomain.toLowerCase())) {
+    //   notification.error("ENS subdomain can only contain lowercase letters, numbers, and hyphens (not at start/end)");
+    //   return;
+    // }
+    // Temporarily disabled to debug the issue
 
     if (!isSubdomainAvailable) {
       notification.error("This subdomain is already taken");
@@ -106,6 +113,8 @@ export const CreateBet = () => {
     }
 
     setIsCreating(true);
+    const normalizedSubdomain = ensSubdomain.toLowerCase().trim();
+
     try {
       // Fetch fresh price data from Pyth
       notification.info("Fetching latest price data...");
@@ -115,21 +124,49 @@ export const CreateBet = () => {
         throw new Error("Failed to fetch price data");
       }
 
-      // Estimate Pyth fee (usually 1 wei per price update)
-      const pythFee = BigInt(pythUpdateData.length);
+      console.log("Pyth update data received:", {
+        count: pythUpdateData.length,
+        firstItem: pythUpdateData[0]?.substring(0, 20) + "...",
+      });
+
+      // Pyth fee is per price update, not per byte
+      // For Sepolia, the fee is typically 1 wei per price feed update
+      const pythFee = BigInt(1); // 1 wei per price feed
       const totalValue = parseEther(betAmount) + pythFee;
 
       notification.info("Creating bet...");
+
+      // Debug logging
+      console.log("Creating bet with params:", {
+        pythUpdateData: pythUpdateData.length,
+        priceFeed: PRICE_FEEDS[selectedFeed as keyof typeof PRICE_FEEDS],
+        targetPrice: BigInt(Math.floor(parseFloat(targetPrice))),
+        duration: BigInt(duration),
+        joinDuration: BigInt(joinDuration),
+        ensSubdomain: normalizedSubdomain,
+        ensSubdomainRaw: ensSubdomain,
+        ensSubdomainLength: normalizedSubdomain.length,
+        ensSubdomainBytes: `0x${Buffer.from(normalizedSubdomain).toString("hex")}`,
+        ensSubdomainCharCodes: Array.from(normalizedSubdomain).map(c => c.charCodeAt(0)),
+        value: totalValue.toString(),
+      });
+
+      // Test subdomain validation
+      console.log("Subdomain validation check:", {
+        isEmpty: normalizedSubdomain.length === 0,
+        isTooLong: normalizedSubdomain.length > 63,
+        wouldRevert: normalizedSubdomain.length === 0 || normalizedSubdomain.length > 63,
+      });
 
       const tx = await writeContractAsync({
         functionName: "createBet",
         args: [
           pythUpdateData,
-          PRICE_FEEDS[selectedFeed],
+          PRICE_FEEDS[selectedFeed as keyof typeof PRICE_FEEDS] as `0x${string}`,
           BigInt(Math.floor(parseFloat(targetPrice))), // Target price in whole USD
           BigInt(duration),
           BigInt(joinDuration),
-          ensSubdomain,
+          normalizedSubdomain, // Use normalized subdomain
         ],
         value: totalValue,
       });
@@ -162,14 +199,33 @@ export const CreateBet = () => {
       console.error("Error creating bet:", error);
 
       // Handle specific error codes
+      console.log("Full error object:", error);
       console.log("Error cause:", error?.cause);
       console.log("Error signature:", error?.cause?.signature);
+      console.log("Error data:", error?.data);
+      console.log("Error shortMessage:", error?.shortMessage);
+      console.log("ENS subdomain that failed:", ensSubdomain);
+      console.log("ENS subdomain normalized:", normalizedSubdomain);
+      console.log("ENS subdomain bytes:", new TextEncoder().encode(normalizedSubdomain));
+
+      // Try to decode the error
+      if (error?.data) {
+        console.log("Raw error data:", error.data);
+      }
+
+      // Check for specific error patterns in the message
+      const errorStr = error?.toString() || "";
+      const errorMessage = error?.message || "";
 
       if (error?.cause?.reason) {
         notification.error(`Failed: ${error.cause.reason}`);
-      } else if (error?.cause?.signature === "0x6ce2251a") {
-        // This is likely InvalidENSSubdomain error
-        notification.error("Invalid ENS subdomain format");
+      } else if (
+        error?.cause?.signature === "0x6ce2251a" ||
+        errorStr.includes("0x6ce2251a") ||
+        errorMessage.includes("0x6ce2251a")
+      ) {
+        // This is InvalidENSSubdomain error
+        notification.error(`Invalid ENS subdomain: "${ensSubdomain}". Must be 1-63 characters.`);
       } else if (error?.cause?.signature === "0xda322303") {
         // ENSSubdomainTaken error
         notification.error("This ENS subdomain is already taken. Please choose another.");
@@ -260,7 +316,7 @@ export const CreateBet = () => {
           min="0.01"
         />
         <label className="label">
-          <span className="label-text-alt">Minimum: 0.01 ETH</span>
+          <span className="label-text-alt">Minimum: 0.0000000001 ETH</span>
         </label>
       </div>
 
@@ -338,12 +394,18 @@ export const CreateBet = () => {
           isCreating ? "opacity-75" : ""
         }`}
         onClick={handleCreateBet}
-        disabled={isCreating || !address || (ensSubdomain && !isSubdomainAvailable)}
+        disabled={isCreating || !address || (!!ensSubdomain && isSubdomainAvailable === false)}
       >
         {isCreating ? "Creating Bet..." : "Create Bet (I bet YES)"}
       </button>
 
-      {!address && <p className="text-center text-sm text-error mt-2">Please connect your wallet to create a bet</p>}
+      {!address && (
+        <div className="mt-2 p-4 bg-warning/10 border border-warning/20 rounded-lg">
+          <p className="text-center text-sm text-warning">
+            🔗 Please connect your wallet to create a bet and interact with the contract
+          </p>
+        </div>
+      )}
 
       {/* Last Transaction */}
       {lastTxHash && (

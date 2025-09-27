@@ -12,6 +12,24 @@ export const metadata = getMetadata({
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning className={``}>
+      <head>
+        {/* Fallback styles for incognito mode */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+            body {
+              background-color: white !important;
+              margin: 0;
+              padding: 0;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            }
+            * {
+              box-sizing: border-box;
+            }
+          `,
+          }}
+        />
+      </head>
       <body className="bg-white">
         <ThemeProvider enableSystem>
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
