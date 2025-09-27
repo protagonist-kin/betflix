@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 
 /// @notice Thrown when updating an address with zero address
 error ZeroAddress();
@@ -42,6 +42,9 @@ error InsufficientPythFee();
 
 /// @notice Thrown when someone other than the creator tries to refund a bet
 error OnlyCreatorCanRefund();
+
+/// @notice Thrown when attempting to resolve a bet that has no opponent
+error BetNotMatched();
 
 /// @notice Thrown when ENS subdomain is invalid (empty or too long)
 error InvalidENSSubdomain();
