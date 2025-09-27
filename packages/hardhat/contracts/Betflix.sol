@@ -77,7 +77,7 @@ contract Betflix is ReentrancyGuard, Ownable {
     mapping(bytes32 => bool) public usedSubdomains;
 
     /// @notice The minimum bet amount
-    uint256 public constant MIN_BET = 0.01 ether;
+    uint256 public constant MIN_BET = 0.0000000001 ether;
 
     /// @notice The minimum duration of a bet
     uint256 public constant MIN_DURATION = 60; // 1 minute
@@ -284,11 +284,11 @@ contract Betflix is ReentrancyGuard, Ownable {
 
         bet.winner = winner;
 
-        // Calculate payout (both amounts minus a small protocol fee later)
+        // Calculate payout (both bet amounts)
         uint256 totalPot = bet.amount * 2;
 
-        // Transfer winnings + original Pyth fee to winner
-        payable(winner).sendValue(totalPot + bet.pythUpdateFee);
+        // Transfer winnings to winner (NOT the pythUpdateFee - it was already spent)
+        payable(winner).sendValue(totalPot);
 
         // Refund resolver's Pyth fee
         payable(msg.sender).sendValue(pythFee);
@@ -334,7 +334,8 @@ contract Betflix is ReentrancyGuard, Ownable {
         // Release the ENS subdomain for reuse
         usedSubdomains[bet.ensLabel] = false;
 
-        uint256 refundAmount = bet.amount + bet.pythUpdateFee;
+        // Only refund the bet amount, NOT the pythUpdateFee (it was already spent)
+        uint256 refundAmount = bet.amount;
         payable(msg.sender).sendValue(refundAmount);
 
         emit BetCancelled(_betId, msg.sender, refundAmount);
@@ -447,5 +448,19 @@ contract Betflix is ReentrancyGuard, Ownable {
         if (address(nameWrapper) == address(0) || bytes(ensDomainName).length == 0) return "";
 
         return string(abi.encodePacked(_subdomain, ".", ensDomainName));
+    }
+
+    /// @notice Emergency function to withdraw all ETH from contract
+    /// @dev Only callable by owner. Use only in extreme emergency
+    function emergencyWithdrawAll() external onlyOwner {
+        uint256 balance = address(this).balance;
+        payable(owner()).sendValue(balance);
+    }
+
+    /// @notice Allows owner to update Pyth oracle address if needed
+    /// @dev Only for emergency updates if Pyth address changes
+    /// @param _newPythAddress New Pyth oracle address
+    function emergencyUpdatePyth(address _newPythAddress) external onlyOwner isValidAddress(_newPythAddress) {
+        pyth = IPyth(_newPythAddress);
     }
 }
