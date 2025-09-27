@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.26;
 
 import "@pythnetwork/pyth-sdk-solidity/IPyth.sol";
 import "@pythnetwork/pyth-sdk-solidity/PythStructs.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
+import "@openzeppelin/contracts/utils/math/SafeCast.sol";
 import "./Common.sol";
 
 /**
@@ -15,6 +16,8 @@ import "./Common.sol";
  */
 contract Betflix is ReentrancyGuard {
     using Address for address payable;
+    using SafeCast for uint256;
+    using SafeCast for int256;
 
     /// @notice The Pyth Network oracle contract interface
     IPyth public pyth;
@@ -106,14 +109,14 @@ contract Betflix is ReentrancyGuard {
     /// @dev The creator takes the YES position (betting price will reach target)
     /// @param _pythUpdateData Fresh price data from Pyth Hermes API
     /// @param _priceFeedId The Pyth price feed ID to use for this bet
-    /// @param _targetPrice The target price to bet on (in Pyth's native format with exponent)
+    /// @param _targetPrice The target price in whole USD (e.g., 50000 for $50,000)
     /// @param _duration How long until bet expires (in seconds)
     /// @param _joinDuration How long to accept joins (in seconds)
     /// @return betId The unique identifier for this bet
     function createBet(
         bytes[] calldata _pythUpdateData,
         bytes32 _priceFeedId,
-        int64 _targetPrice,
+        uint256 _targetPrice,
         uint256 _duration,
         uint256 _joinDuration
     ) external payable nonReentrant returns (bytes32 betId) {
@@ -136,6 +139,9 @@ contract Betflix is ReentrancyGuard {
         // Validate price is positive (crypto prices should be positive)
         if (currentPrice.price <= 0) revert PriceStale();
 
+        // Convert user's target price to Pyth format
+        int64 targetPriceInPythFormat = _convertToPythPrice(_targetPrice, currentPrice.expo);
+
         betId = keccak256(abi.encodePacked(msg.sender, _priceFeedId, _targetPrice, block.timestamp, block.prevrandao));
 
         if (bets[betId].player1 != address(0)) revert BetAlreadyExists();
@@ -144,7 +150,7 @@ contract Betflix is ReentrancyGuard {
             player1: msg.sender,
             player2: address(0),
             amount: betAmount,
-            targetPrice: _targetPrice,
+            targetPrice: targetPriceInPythFormat,
             priceExponent: currentPrice.expo,
             deadline: block.timestamp + _duration,
             joinDeadline: block.timestamp + _joinDuration,
@@ -159,7 +165,7 @@ contract Betflix is ReentrancyGuard {
         emit BetCreated(
             betId,
             msg.sender,
-            _targetPrice,
+            targetPriceInPythFormat,
             betAmount,
             block.timestamp + _duration,
             block.timestamp + _joinDuration
@@ -262,5 +268,46 @@ contract Betflix is ReentrancyGuard {
     /// @return The bet struct containing all bet information
     function getBet(bytes32 _betId) external view returns (Bet memory) {
         return bets[_betId];
+    }
+
+    /// @notice Gets a bet's target price in human-readable USD format
+    /// @param _betId The unique identifier of the bet
+    /// @return The target price in USD (e.g., 50000 for $50,000)
+    function getBetTargetPriceUSD(bytes32 _betId) external view returns (uint256) {
+        Bet memory bet = bets[_betId];
+        if (bet.player1 == address(0)) return 0;
+
+        // Convert from Pyth format back to USD
+        // If price is 5000000000000 with expo -8, return 50000
+        uint256 divisor = 10 ** uint32(-bet.priceExponent);
+
+        // Use SafeCast to convert int64 -> int256 -> uint256
+        return int256(bet.targetPrice).toUint256() / divisor;
+    }
+
+    /// @notice Converts a human-readable USD price to Pyth's format
+    /// @dev Example: 50000 (for $50,000) with expo -8 becomes 5000000000000
+    /// @param _usdPrice The price in USD (e.g., 50000 for $50,000)
+    /// @param _expo The exponent from Pyth (e.g., -8)
+    /// @return The price in Pyth's int64 format
+    function _convertToPythPrice(uint256 _usdPrice, int32 _expo) internal pure returns (int64) {
+        // Validate inputs
+        if (_usdPrice == 0) revert PriceStale(); // Price cannot be zero
+        if (_usdPrice > 100_000_000) revert PriceStale(); // Max $100 million (safe for all exponents)
+
+        // Protect against extreme exponents
+        if (_expo > -2 || _expo < -18) revert PriceStale(); // Reasonable range for price feeds
+
+        // Convert based on exponent
+        // If expo is -8, multiply by 10^8
+        uint256 multiplier = 10 ** uint32(-_expo);
+
+        // Check for potential overflow before multiplication
+        if (_usdPrice > type(uint256).max / multiplier) revert PriceStale();
+
+        uint256 pythPrice = _usdPrice * multiplier;
+
+        // Use SafeCast to convert uint256 -> int256 -> int64
+        return pythPrice.toInt256().toInt64();
     }
 }
