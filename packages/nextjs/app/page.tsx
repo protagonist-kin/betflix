@@ -3,8 +3,11 @@
 import Link from "next/link";
 import type { NextPage } from "next";
 import { useAccount } from "wagmi";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { Address } from "~~/components/scaffold-eth";
+import { ChartBarIcon, TrophyIcon } from "@heroicons/react/24/outline";
+import { ErrorBoundary } from "~~/components/ErrorBoundary";
+import { NetworkInfo } from "~~/components/NetworkInfo";
+import { ActiveBets } from "~~/components/betflix/ActiveBets";
+import { CreateBet } from "~~/components/betflix/CreateBet";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -12,59 +15,78 @@ const Home: NextPage = () => {
   return (
     <>
       <div className="flex items-center flex-col grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
+        <div className="px-5 max-w-7xl w-full">
+          <h1 className="text-center mb-8">
+            <span className="block text-6xl font-bold text-base-content">Betflix</span>
+            <span className="block text-2xl mt-2 text-base-content/70 font-light">
+              Real-time micro-betting on price movements
+            </span>
           </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
+
+          {/* Main Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            {/* Create Bet Section */}
+            <div className="lg:col-span-2">
+              <h2 className="text-3xl font-bold mb-4">Create a Bet</h2>
+              <ErrorBoundary>
+                <CreateBet />
+              </ErrorBoundary>
+            </div>
+
+            {/* Info Section */}
+            <div className="space-y-6">
+              {/* How It Works */}
+              <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl p-6 border-2 border-primary/20">
+                <div className="flex items-center mb-3">
+                  <ChartBarIcon className="h-6 w-6 text-primary" />
+                  <h3 className="text-lg font-bold ml-2">How It Works</h3>
+                </div>
+                <div className="space-y-3 text-sm">
+                  <div>
+                    <span className="text-primary font-semibold">1. Create</span>
+                    <p className="text-base-content/70">Set target price & deadline</p>
+                  </div>
+                  <div>
+                    <span className="text-primary font-semibold">2. Join</span>
+                    <p className="text-base-content/70">Take opposite position</p>
+                  </div>
+                  <div>
+                    <span className="text-primary font-semibold">3. Win</span>
+                    <p className="text-base-content/70">Winner takes all</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* ENS Trophies */}
+              <div className="bg-gradient-to-r from-warning/10 to-success/10 rounded-2xl p-6 border-2 border-warning/20">
+                <div className="flex items-center mb-3">
+                  <TrophyIcon className="h-6 w-6 text-warning" />
+                  <h3 className="text-lg font-bold ml-2">Win ENS Trophies</h3>
+                </div>
+                <p className="text-sm text-base-content/70">
+                  🏆 Every win awards a unique ENS subdomain as your permanent trophy!
+                </p>
+              </div>
+            </div>
           </div>
 
-          <p className="text-center text-lg">
-            Get started by editing{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/nextjs/app/page.tsx
-            </code>
-          </p>
-          <p className="text-center text-lg">
-            Edit your smart contract{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              YourContract.sol
-            </code>{" "}
-            in{" "}
-            <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-              packages/hardhat/contracts
-            </code>
-          </p>
-        </div>
+          {/* Active Bets Section */}
+          <div>
+            <h2 className="text-3xl font-bold mb-4">Active Bets</h2>
+            <ErrorBoundary>
+              <ActiveBets />
+            </ErrorBoundary>
+          </div>
 
-        <div className="grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col md:flex-row">
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <BugAntIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 px-10 py-10 text-center items-center max-w-xs rounded-3xl">
-              <MagnifyingGlassIcon className="h-8 w-8 fill-secondary" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
+          {/* Debug Link */}
+          <div className="text-center mt-8">
+            <Link href="/debug" className="link link-primary text-sm">
+              Debug Contracts →
+            </Link>
           </div>
         </div>
       </div>
+      <NetworkInfo />
     </>
   );
 };
