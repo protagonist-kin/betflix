@@ -42,3 +42,9 @@ error InsufficientPythFee();
 
 /// @notice Thrown when someone other than the creator tries to refund a bet
 error OnlyCreatorCanRefund();
+
+/// @notice Thrown when ENS subdomain is invalid (empty or too long)
+error InvalidENSSubdomain();
+
+/// @notice Thrown when ENS subdomain is already taken
+error ENSSubdomainTaken();
