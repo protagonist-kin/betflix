@@ -124,7 +124,8 @@ export function getBlockExplorerTxLink(chainId: number, txnHash: string) {
 export function getBlockExplorerAddressLink(network: chains.Chain, address: string) {
   const blockExplorerBaseURL = network.blockExplorers?.default?.url;
   if (network.id === chains.hardhat.id) {
-    return `/blockexplorer/address/${address}`;
+    // For local hardhat, return etherscan as fallback since local explorer was removed
+    return `https://etherscan.io/address/${address}`;
   }
 
   if (!blockExplorerBaseURL) {

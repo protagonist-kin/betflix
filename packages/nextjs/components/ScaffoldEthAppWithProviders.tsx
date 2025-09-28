@@ -36,7 +36,8 @@ export const queryClient = new QueryClient({
 
 export const ScaffoldEthAppWithProviders = ({ children }: { children: React.ReactNode }) => {
   const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
+  const effectiveTheme = "light"; // Force light theme
+  const isDarkMode = false; // Always use light mode
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -55,6 +56,8 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
         msgString.includes("cca-lite.coinbase.com") ||
         msgString.includes("Analytics SDK") ||
         msgString.includes("ERR_BLOCKED_BY_CLIENT") ||
+        msgString.includes("Failed to fetch") ||
+        msgString.includes("coinbase") ||
         (url && url.includes("cca-lite.coinbase.com"))
       ) {
         return true; // Suppress the error
@@ -73,7 +76,10 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
         (event.reason.message?.includes("Analytics SDK") ||
           event.reason.message?.includes("cca-lite.coinbase.com") ||
           event.reason.message?.includes("ERR_BLOCKED_BY_CLIENT") ||
-          event.reason.stack?.includes("cca-lite.coinbase.com"))
+          event.reason.message?.includes("Failed to fetch") ||
+          event.reason.message?.includes("coinbase") ||
+          event.reason.stack?.includes("cca-lite.coinbase.com") ||
+          event.reason.stack?.includes("coinbase"))
       ) {
         event.preventDefault();
         return;
@@ -90,7 +96,9 @@ export const ScaffoldEthAppWithProviders = ({ children }: { children: React.Reac
         errorString.includes("Analytics SDK") ||
         errorString.includes("cca-lite.coinbase.com") ||
         errorString.includes("ERR_BLOCKED_BY_CLIENT") ||
-        errorString.includes("net::ERR_BLOCKED_BY_CLIENT")
+        errorString.includes("net::ERR_BLOCKED_BY_CLIENT") ||
+        errorString.includes("Failed to fetch") ||
+        errorString.includes("/metrics")
       ) {
         return;
       }

@@ -101,7 +101,7 @@ export const GET_USER_BETS = `
           address
         }
         amount
-        targetPriceUSD
+        targetPrice
         assetPair
         deadline
         ensSubdomain
@@ -117,7 +117,7 @@ export const GET_USER_BETS = `
           address
         }
         amount
-        targetPriceUSD
+        targetPrice
         assetPair
         deadline
         ensSubdomain

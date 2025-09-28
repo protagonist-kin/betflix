@@ -14,7 +14,8 @@ export const NetworkOptions = ({ hidden = false }: NetworkOptionsProps) => {
   const { switchChain } = useSwitchChain();
   const { chain } = useAccount();
   const { resolvedTheme } = useTheme();
-  const isDarkMode = resolvedTheme === "dark";
+  const effectiveTheme = "light"; // Force light theme
+  const isDarkMode = false; // Always use light mode
 
   return (
     <>
