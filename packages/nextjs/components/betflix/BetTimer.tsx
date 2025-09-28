@@ -12,6 +12,8 @@ export const BetTimer = ({ deadline, onExpired }: BetTimerProps) => {
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
+    let hasExpired = false;
+
     const updateTimer = () => {
       const now = Math.floor(Date.now() / 1000);
       const deadlineTime = Number(deadline);
@@ -19,7 +21,10 @@ export const BetTimer = ({ deadline, onExpired }: BetTimerProps) => {
       if (now >= deadlineTime) {
         setIsExpired(true);
         setTimeLeft("Expired");
-        if (onExpired) onExpired();
+        if (onExpired && !hasExpired) {
+          hasExpired = true;
+          onExpired();
+        }
         return;
       }
 

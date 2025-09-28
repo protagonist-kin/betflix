@@ -39,7 +39,7 @@ interface BetData {
 const getPriceFeedAssetPair = (priceFeedId: string): string => {
   // Remove 0x prefix if present
   const id = priceFeedId.startsWith("0x") ? priceFeedId.slice(2) : priceFeedId;
-  
+
   if (id === "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace") {
     return "ETH/USD";
   } else if (id === "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43") {
@@ -274,13 +274,25 @@ export const ActiveBets = () => {
         <h2 className="text-2xl font-bold text-base-content">Active Bets</h2>
         <button
           onClick={() => refetchBets()}
-          className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+          className={`text-sm flex items-center gap-1 transition-colors ${
+            betsLoading ? "text-gray-400 cursor-not-allowed" : "text-gray-600 hover:text-gray-900 cursor-pointer"
+          }`}
           disabled={betsLoading}
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          <svg
+            className={`w-4 h-4 ${betsLoading ? "animate-spin" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
           </svg>
-          Refresh
+          {betsLoading ? "Refreshing..." : "Refresh"}
         </button>
       </div>
 

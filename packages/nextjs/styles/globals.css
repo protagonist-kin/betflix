@@ -103,7 +103,11 @@
 
 :root,
 [data-theme] {
-  background: var(--color-base-200);
+  background: white;
+}
+
+body {
+  background-color: white !important;
 }
 
 .btn {
@@ -120,4 +124,21 @@
 
 .link:hover {
   opacity: 80%;
+}
+
+/* Override DaisyUI card styles */
+.card {
+  background-color: white;
+  border: 1px solid #e5e7eb;
+}
+
+/* Clean input styles */
+.input, .select, .textarea {
+  background-color: white;
+  border-color: #e5e7eb;
+}
+
+.input:focus, .select:focus, .textarea:focus {
+  border-color: #9ca3af;
+  outline: none;
 }

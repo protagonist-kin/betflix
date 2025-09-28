@@ -22,20 +22,36 @@ export const PriceDisplay = () => {
   const fetchPrices = async () => {
     try {
       const pricePromises = Object.entries(PRICE_FEEDS).map(async ([symbol, feedId]) => {
-        const response = await fetch("/api/pyth", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ priceId: feedId }),
-        });
+        try {
+          const response = await fetch("/api/pyth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ priceId: feedId }),
+          });
 
-        if (!response.ok) throw new Error(`Failed to fetch ${symbol} price`);
+          if (!response.ok) {
+            console.warn(`Failed to fetch ${symbol} price:`, response.statusText);
+            return {
+              symbol,
+              price: 0,
+              change24h: 0,
+            };
+          }
 
-        const data = await response.json();
-        return {
-          symbol,
-          price: data.price || 0,
-          change24h: Math.random() * 10 - 5, // Mock 24h change for now
-        };
+          const data = await response.json();
+          return {
+            symbol,
+            price: data.price || 0,
+            change24h: Math.random() * 10 - 5, // Mock 24h change for now
+          };
+        } catch (error) {
+          console.warn(`Error fetching ${symbol} price:`, error);
+          return {
+            symbol,
+            price: 0,
+            change24h: 0,
+          };
+        }
       });
 
       const priceData = await Promise.all(pricePromises);
@@ -43,6 +59,11 @@ export const PriceDisplay = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching prices:", error);
+      // Set fallback data to prevent empty UI
+      setPrices([
+        { symbol: "ETH/USD", price: 0, change24h: 0 },
+        { symbol: "BTC/USD", price: 0, change24h: 0 },
+      ]);
       setLoading(false);
     }
   };
@@ -69,12 +90,16 @@ export const PriceDisplay = () => {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-base-content">{priceData.symbol}</h3>
-              <p className="text-2xl font-mono text-base-content mt-1">${priceData.price.toFixed(2)}</p>
+              <p className="text-2xl font-mono text-base-content mt-1">
+                {priceData.price > 0 ? `$${priceData.price.toFixed(2)}` : "Unavailable"}
+              </p>
             </div>
-            <div className={`flex items-center ${priceData.change24h >= 0 ? "text-green-600" : "text-red-600"}`}>
-              {priceData.change24h >= 0 ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />}
-              <span className="text-sm ml-1 font-medium">{Math.abs(priceData.change24h).toFixed(2)}%</span>
-            </div>
+            {priceData.price > 0 && (
+              <div className={`flex items-center ${priceData.change24h >= 0 ? "text-green-600" : "text-red-600"}`}>
+                {priceData.change24h >= 0 ? <ArrowUpIcon className="w-4 h-4" /> : <ArrowDownIcon className="w-4 h-4" />}
+                <span className="text-sm ml-1 font-medium">{Math.abs(priceData.change24h).toFixed(2)}%</span>
+              </div>
+            )}
           </div>
         </div>
       ))}
