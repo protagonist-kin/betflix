@@ -5,9 +5,9 @@ import type { NextPage } from "next";
 import { useAccount } from "wagmi";
 import { ChartBarIcon, TrophyIcon } from "@heroicons/react/24/outline";
 import { ErrorBoundary } from "~~/components/ErrorBoundary";
-import { NetworkInfo } from "~~/components/NetworkInfo";
 import { ActiveBets } from "~~/components/betflix/ActiveBets";
 import { CreateBet } from "~~/components/betflix/CreateBet";
+import { GlobalStats } from "~~/components/betflix/GlobalStats";
 
 const Home: NextPage = () => {
   const { address: connectedAddress } = useAccount();
@@ -22,6 +22,9 @@ const Home: NextPage = () => {
               Real-time micro-betting on price movements
             </span>
           </h1>
+
+          {/* Global Stats */}
+          <GlobalStats />
 
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -70,6 +73,19 @@ const Home: NextPage = () => {
             </div>
           </div>
 
+          {/* My Bets Link */}
+          {connectedAddress && (
+            <div className="mb-8 text-center">
+              <Link
+                href="/my-bets"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors"
+              >
+                <ChartBarIcon className="w-5 h-5" />
+                View My Betting History
+              </Link>
+            </div>
+          )}
+
           {/* Active Bets Section */}
           <div>
             <h2 className="text-3xl font-bold mb-4">Active Bets</h2>
@@ -86,7 +102,6 @@ const Home: NextPage = () => {
           </div>
         </div>
       </div>
-      <NetworkInfo />
     </>
   );
 };
