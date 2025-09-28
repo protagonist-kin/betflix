@@ -1,26 +1,34 @@
-specVersion: 0.0.4
-description: Greetings
+specVersion: 0.0.5
+description: Betflix - Real-time price betting protocol with ENS trophies
 repository: https://github.com/scaffold-eth/se-2/packages/subgraph/
 schema:
   file: ./src/schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: YourContract
-    network: localhost
+    name: Betflix
+    network: sepolia
     source:
-      abi: YourContract
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      abi: Betflix
+      address: "0xeFA1543b742790E711BC02CCAbEF775f3a46583E"
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Greeting
-        - Sender
+        - Bet
+        - User
+        - GlobalStats
+        - DailyStats
       abis:
-        - name: YourContract
-          file: ./abis/localhost_YourContract.json
+        - name: Betflix
+          file: ./abis/Betflix.json
       eventHandlers:
-        - event: GreetingChange(indexed address,string,bool,uint256)
-          handler: handleGreetingChange
+        - event: BetCreated(bytes32,address,int64,uint256,uint256,uint256,string)
+          handler: handleBetCreated
+        - event: BetJoined(bytes32,address)
+          handler: handleBetJoined
+        - event: BetResolved(bytes32,address,address,int64,uint256,string)
+          handler: handleBetResolved
+        - event: BetCancelled(bytes32,address,uint256)
+          handler: handleBetCancelled
       file: ./src/mapping.ts
