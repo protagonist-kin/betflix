@@ -10,6 +10,7 @@ dataSources:
     source:
       abi: Betflix
       address: "0x5d4fb9e6d06faf378e68cDbd056054E21dE8EA06"
+      startBlock: 9295368
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
