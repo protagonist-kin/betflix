@@ -7,6 +7,7 @@ import { ChartBarIcon, TrophyIcon } from "@heroicons/react/24/outline";
 import { ErrorBoundary } from "~~/components/ErrorBoundary";
 import { ActiveBets } from "~~/components/betflix/ActiveBets";
 import { CreateBet } from "~~/components/betflix/CreateBet";
+import { ENSTrophies } from "~~/components/betflix/ENSTrophies";
 import { GlobalStats } from "~~/components/betflix/GlobalStats";
 
 const Home: NextPage = () => {
@@ -73,6 +74,13 @@ const Home: NextPage = () => {
             </div>
           </div>
 
+          {/* ENS Trophies Display */}
+          {connectedAddress && (
+            <ErrorBoundary>
+              <ENSTrophies />
+            </ErrorBoundary>
+          )}
+
           {/* My Bets Link */}
           {connectedAddress && (
             <div className="mb-8 text-center">
@@ -92,13 +100,6 @@ const Home: NextPage = () => {
             <ErrorBoundary>
               <ActiveBets />
             </ErrorBoundary>
-          </div>
-
-          {/* Debug Link */}
-          <div className="text-center mt-8">
-            <Link href="/debug" className="link link-primary text-sm">
-              Debug Contracts →
-            </Link>
           </div>
         </div>
       </div>

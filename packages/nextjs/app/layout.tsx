@@ -11,7 +11,7 @@ export const metadata = getMetadata({
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
   return (
-    <html suppressHydrationWarning className={``}>
+    <html suppressHydrationWarning className={``} data-theme="light">
       <head>
         {/* Fallback styles for incognito mode */}
         <style
@@ -31,7 +31,7 @@ const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
         />
       </head>
       <body className="bg-white">
-        <ThemeProvider enableSystem>
+        <ThemeProvider enableSystem={false} defaultTheme="light" forcedTheme="light">
           <ScaffoldEthAppWithProviders>{children}</ScaffoldEthAppWithProviders>
         </ThemeProvider>
       </body>

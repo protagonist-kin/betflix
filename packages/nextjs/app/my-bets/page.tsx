@@ -20,7 +20,6 @@ interface BetData {
   };
   amount: string;
   targetPrice: string;
-  targetPriceUSD: string;
   assetPair: string;
   deadline: string;
   ensSubdomain: string;
@@ -209,7 +208,7 @@ export default function MyBetsPage() {
                         </span>
                       </div>
                       <div className="text-sm text-gray-600">
-                        Target: ${bet.targetPriceUSD} • Position: {position}
+                        Target: {bet.targetPrice} • Position: {position}
                       </div>
                     </div>
                     <div className="text-right">
