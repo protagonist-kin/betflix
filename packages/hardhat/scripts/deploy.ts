@@ -17,7 +17,7 @@ async function main() {
     pyth: "0xDd24F84d36BF92C65F92307595335bdFab5Bbd21",
     nameWrapperAddress: "0x0635513f179D50A207757E05759CbD106d7dFcE8",
     resolverAddress: "0x8FADE66B79cC9f707aB26799354482EB93a5B7dD",
-    domain: "tempo.eth",
+    domain: "betflix.eth",
   };
 
   // Configuration - UPDATE THESE VALUES

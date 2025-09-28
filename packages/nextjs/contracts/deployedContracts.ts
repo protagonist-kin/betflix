@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   "11155111": {
     "Betflix": {
-      "address": "0xc451425db45500b73a9D5C6E1f5F8a7A4BDb5229",
+      "address": "0x5d4fb9e6d06faf378e68cDbd056054E21dE8EA06",
       "abi": [
         {
           "inputs": [
