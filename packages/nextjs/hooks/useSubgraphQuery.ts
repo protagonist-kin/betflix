@@ -4,8 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 // The Graph Gateway URL with subgraph ID
-const SUBGRAPH_ID = "9Wfi2JmF3LFwbaEgmvZad3vyCr45C684oyA1aRmV3mYY";
-const SUBGRAPH_URL = `https://gateway.thegraph.com/api/subgraphs/id/${SUBGRAPH_ID}`;
+const SUBGRAPH_URL = `https://gateway.thegraph.com/api/subgraphs/id/9Wfi2JmF3LFwbaEgmvZad3vyCr45C684oyA1aRmV3mYY`;
 
 // Get API key from environment variable
 const API_KEY = process.env.NEXT_PUBLIC_GRAPH_API_KEY || "";
