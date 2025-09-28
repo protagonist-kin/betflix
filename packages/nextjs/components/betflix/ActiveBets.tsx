@@ -1,76 +1,74 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { formatEther, parseEther } from "viem";
 import { useAccount } from "wagmi";
 import { CheckCircleIcon, ClockIcon, TrophyIcon, UserGroupIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { BetTimer } from "~~/components/betflix/BetTimer";
-import { useScaffoldEventHistory, useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { GET_ALL_ACTIVE_BETS } from "~~/graphql/queries";
+import { useScaffoldReadContract, useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
+import { useSubgraphQuery } from "~~/hooks/useSubgraphQuery";
 import { notification } from "~~/utils/scaffold-eth";
 
 interface BetData {
-  player1: string;
-  player2: string;
-  amount: bigint;
-  targetPrice: bigint;
+  id: string;
+  creator: {
+    id: string;
+    address: string;
+  };
+  joiner?: {
+    id: string;
+    address: string;
+  };
+  amount: string;
+  targetPrice: string;
+  targetPriceUSD: string;
+  startPrice: string;
   priceExponent: number;
-  deadline: bigint;
-  joinDeadline: bigint;
-  startPrice: bigint;
-  pythUpdateFee: bigint;
-  resolved: boolean;
-  cancelled: boolean;
-  winner: string;
   priceFeedId: string;
-  ensLabel: string;
+  assetPair: string;
+  deadline: string;
+  joinDeadline: string;
   ensSubdomain: string;
+  status: string;
+  createdAt: string;
+  createdTx: string;
 }
 
-interface BetDisplay {
-  betId: string;
-  creator: string;
-  targetPrice: bigint;
-  amount: bigint;
-  deadline: bigint;
-  joinDeadline: bigint;
-  ensSubdomain: string;
-  hasJoiner: boolean;
-  priceFeedId: string;
-}
-
-// Price feed IDs for different assets
-const PRICE_FEEDS: { [key: string]: string } = {
-  "0xff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace": "ETH/USD",
-  "0xe62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43": "BTC/USD",
+// Map price feed IDs to readable asset pairs
+const getPriceFeedAssetPair = (priceFeedId: string): string => {
+  // Remove 0x prefix if present
+  const id = priceFeedId.startsWith("0x") ? priceFeedId.slice(2) : priceFeedId;
+  
+  if (id === "ff61491a931112ddf1bd8147cd1b641375f79f5825126d665480874634fd0ace") {
+    return "ETH/USD";
+  } else if (id === "e62df6c8b4a85fe1a67db44dc12de5db330f7ac66b72dc658afedf0f4a415b43") {
+    return "BTC/USD";
+  }
+  return "Unknown";
 };
 
 // Resolve Bet Button Component
 const ResolveBetButton = ({
   betId,
+  deadline,
+  priceFeedId,
   isResolving,
   onResolve,
 }: {
   betId: string;
+  deadline: string;
+  priceFeedId: string;
   isResolving: boolean;
   onResolve: (betId: string, priceFeedId: string) => void;
 }) => {
   const [canResolve, setCanResolve] = useState(false);
 
-  const { data: betData } = useScaffoldReadContract({
-    contractName: "Betflix",
-    functionName: "getBet",
-    args: [betId as `0x${string}`],
-  }) as { data: BetData | undefined };
-
-  if (!betData) {
-    return null;
-  }
-
   return (
     <div className="flex items-center gap-3">
       <div className="text-sm">
         <span className="text-gray-600">Time left: </span>
-        <BetTimer deadline={betData.deadline} onExpired={() => setCanResolve(true)} />
+        <BetTimer deadline={BigInt(deadline)} onExpired={() => setCanResolve(true)} />
       </div>
       <button
         className={`px-4 py-2 text-white text-sm rounded-lg font-medium transition-all ${
@@ -78,8 +76,8 @@ const ResolveBetButton = ({
             ? "bg-green-600 hover:bg-green-700 cursor-pointer"
             : "bg-gray-500 cursor-not-allowed opacity-50"
         }`}
-        onClick={() => betData && canResolve && onResolve(betId, betData.priceFeedId)}
-        disabled={!canResolve || isResolving || !betData}
+        onClick={() => canResolve && onResolve(betId, priceFeedId)}
+        disabled={!canResolve || isResolving}
       >
         {isResolving ? "Resolving..." : canResolve ? "Resolve Bet" : "Not Ready"}
       </button>
@@ -93,39 +91,18 @@ export const ActiveBets = () => {
   const [isResolving, setIsResolving] = useState<string | null>(null);
   const [isCancelling, setIsCancelling] = useState<string | null>(null);
   const [expandedBets, setExpandedBets] = useState<Set<string>>(new Set());
+  const [activeTab, setActiveTab] = useState<"pending" | "matched">("pending");
 
   const { writeContractAsync } = useScaffoldWriteContract("Betflix");
 
-  // Get BetCreated events - start from recent blocks on Sepolia
-  const { data: betCreatedEvents } = useScaffoldEventHistory({
-    contractName: "Betflix",
-    eventName: "BetCreated",
-    fromBlock: 7200000n, // Recent block on Sepolia
-    watch: true,
-  });
-
-  // Get BetJoined events
-  const { data: betJoinedEvents } = useScaffoldEventHistory({
-    contractName: "Betflix",
-    eventName: "BetJoined",
-    fromBlock: 7200000n,
-    watch: true,
-  });
-
-  // Get BetResolved events
-  const { data: betResolvedEvents } = useScaffoldEventHistory({
-    contractName: "Betflix",
-    eventName: "BetResolved",
-    fromBlock: 7200000n,
-    watch: true,
-  });
-
-  // Get BetCancelled events
-  const { data: betCancelledEvents } = useScaffoldEventHistory({
-    contractName: "Betflix",
-    eventName: "BetCancelled",
-    fromBlock: 7200000n,
-    watch: true,
+  // Fetch active bets from subgraph (single query for both pending and matched)
+  const {
+    data: betsData,
+    loading: betsLoading,
+    refetch: refetchBets,
+  } = useSubgraphQuery<{ pendingBets: BetData[]; matchedBets: BetData[] }>(GET_ALL_ACTIVE_BETS, {
+    variables: { first: 100, skip: 0 },
+    // No automatic polling - only fetch on mount and manual refresh
   });
 
   const fetchPythUpdateData = async (priceFeedId: string) => {
@@ -136,136 +113,20 @@ export const ActiveBets = () => {
         body: JSON.stringify({ priceId: priceFeedId }),
       });
 
-      if (!response.ok) throw new Error("Failed to fetch price data");
+      if (!response.ok) {
+        throw new Error("Failed to fetch Pyth data");
+      }
 
       const data = await response.json();
       return data.updateData;
     } catch (error) {
-      console.error("Error fetching Pyth data:", error);
-      throw error;
+      console.error("Error fetching Pyth update data:", error);
+      notification.error("Failed to fetch price data");
+      return null;
     }
   };
 
-  // Process events to get active bets
-  const activeBets = useMemo(() => {
-    console.log("Processing active bets:", {
-      betCreatedEvents: betCreatedEvents?.length || 0,
-      betJoinedEvents: betJoinedEvents?.length || 0,
-      betResolvedEvents: betResolvedEvents?.length || 0,
-      betCancelledEvents: betCancelledEvents?.length || 0,
-      currentAddress: address,
-    });
-
-    if (!betCreatedEvents) return [];
-
-    const joinedBetIds = new Set(betJoinedEvents?.map(e => e.args.betId) || []);
-    const resolvedBetIds = new Set(betResolvedEvents?.map(e => e.args.betId) || []);
-    const cancelledBetIds = new Set(betCancelledEvents?.map(e => e.args.betId) || []);
-
-    const filtered = betCreatedEvents
-      .filter(event => {
-        const betId = event.args.betId;
-        const isResolved = resolvedBetIds.has(betId);
-        const isCancelled = cancelledBetIds.has(betId);
-        return !isResolved && !isCancelled;
-      })
-      .map(event => ({
-        betId: event.args.betId || "",
-        creator: event.args.creator || "",
-        targetPrice: event.args.targetPrice || 0n,
-        amount: event.args.amount || 0n,
-        deadline: event.args.deadline || 0n,
-        joinDeadline: event.args.joinDeadline || 0n,
-        ensSubdomain: event.args.ensSubdomain || "",
-        hasJoiner: joinedBetIds.has(event.args.betId),
-        priceFeedId: "", // We'll need to fetch this from the contract
-      }))
-      .reverse(); // Show newest first
-
-    console.log("Active bets found:", filtered.length);
-    return filtered;
-  }, [betCreatedEvents, betJoinedEvents, betResolvedEvents, betCancelledEvents, address]);
-
-  // Fetch bet details for expanded bets
-  const BetDetails = ({ betId }: { betId: string }) => {
-    const { data: betData } = useScaffoldReadContract({
-      contractName: "Betflix",
-      functionName: "getBet",
-      args: [betId as `0x${string}`],
-    }) as { data: BetData | undefined };
-
-    const { data: targetPriceUSD } = useScaffoldReadContract({
-      contractName: "Betflix",
-      functionName: "getBetTargetPriceUSD",
-      args: [betId as `0x${string}`],
-    });
-
-    if (!betData) {
-      return (
-        <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-          <div className="animate-pulse">
-            <div className="h-4 bg-gray-300 rounded w-3/4 mb-2"></div>
-            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-          </div>
-        </div>
-      );
-    }
-
-    const assetPair = PRICE_FEEDS[betData.priceFeedId] || "Unknown";
-
-    return (
-      <div className="mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg">
-        <h4 className="font-semibold mb-3 text-gray-800">Bet Details</h4>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <span className="text-gray-600">Asset:</span>
-            <span className="ml-2 text-gray-900">{assetPair}</span>
-          </div>
-          <div>
-            <span className="text-gray-600">Target Price:</span>
-            <span className="ml-2 text-gray-900">${targetPriceUSD?.toString() || "0"}</span>
-          </div>
-          <div>
-            <span className="text-gray-600">Start Price:</span>
-            <span className="ml-2 text-gray-900">
-              $
-              {betData?.startPrice && betData?.priceExponent !== undefined
-                ? (Number(betData.startPrice) / 10 ** Math.abs(betData.priceExponent)).toFixed(2)
-                : "Loading..."}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600">Player 1 (YES):</span>
-            <span className="ml-2 text-gray-900">
-              {betData?.player1 ? `${betData.player1.slice(0, 6)}...${betData.player1.slice(-4)}` : "Loading..."}
-            </span>
-          </div>
-          {betData?.player2 && betData.player2 !== "0x0000000000000000000000000000000000000000" && (
-            <div>
-              <span className="text-gray-600">Player 2 (NO):</span>
-              <span className="ml-2 text-gray-900">
-                {betData.player2.slice(0, 6)}...{betData.player2.slice(-4)}
-              </span>
-            </div>
-          )}
-          <div>
-            <span className="text-gray-600">ENS Trophy:</span>
-            <span className="ml-2 text-gray-900">
-              {betData?.ensSubdomain ? `${betData.ensSubdomain}.betflix.eth` : "Loading..."}
-            </span>
-          </div>
-          <div>
-            <span className="text-gray-600">Resolution Time:</span>
-            <span className="ml-2">
-              <BetTimer deadline={betData.deadline} />
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const handleJoinBet = async (betId: string, amount: bigint) => {
+  const handleJoinBet = async (betId: string, amount: string) => {
     if (!address) {
       notification.error("Please connect your wallet");
       return;
@@ -276,18 +137,21 @@ export const ActiveBets = () => {
       const tx = await writeContractAsync({
         functionName: "joinBet",
         args: [betId as `0x${string}`],
-        value: amount,
+        value: BigInt(amount),
       });
 
       notification.success(
         <>
-          Successfully joined bet!
+          Bet joined successfully!
           <br />
           <a href={`https://sepolia.etherscan.io/tx/${tx}`} target="_blank" rel="noopener noreferrer" className="link">
             View transaction
           </a>
         </>,
       );
+
+      // Refetch data
+      refetchBets();
     } catch (error: any) {
       console.error("Error joining bet:", error);
       notification.error(error.message || "Failed to join bet");
@@ -305,18 +169,14 @@ export const ActiveBets = () => {
     setIsResolving(betId);
     try {
       // Fetch fresh price data
-      notification.info("Fetching latest price data...");
-
       const pythUpdateData = await fetchPythUpdateData(priceFeedId);
-
-      if (!pythUpdateData || pythUpdateData.length === 0) {
+      if (!pythUpdateData) {
         throw new Error("Failed to fetch price data");
       }
 
-      // Estimate Pyth fee
+      // Calculate Pyth fee
       const pythFee = BigInt(pythUpdateData.length);
 
-      notification.info("Resolving bet...");
       const tx = await writeContractAsync({
         functionName: "resolveBet",
         args: [betId as `0x${string}`, pythUpdateData],
@@ -332,6 +192,9 @@ export const ActiveBets = () => {
           </a>
         </>,
       );
+
+      // Refetch data
+      refetchBets();
     } catch (error: any) {
       console.error("Error resolving bet:", error);
       notification.error(error.message || "Failed to resolve bet");
@@ -362,6 +225,9 @@ export const ActiveBets = () => {
           </a>
         </>,
       );
+
+      // Refetch data
+      refetchBets();
     } catch (error: any) {
       console.error("Error cancelling bet:", error);
       notification.error(error.message || "Failed to cancel bet");
@@ -380,130 +246,224 @@ export const ActiveBets = () => {
     setExpandedBets(newExpanded);
   };
 
-  const getTimeRemaining = (deadline: bigint) => {
+  const getTimeRemaining = (deadline: string) => {
     const now = BigInt(Math.floor(Date.now() / 1000));
-    const remaining = Number(deadline - now);
+    const deadlineBigInt = BigInt(deadline);
+    const remaining = Number(deadlineBigInt - now);
 
     if (remaining <= 0) return "Expired";
-
-    const minutes = Math.floor(remaining / 60);
-    const seconds = remaining % 60;
-
-    if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    }
-    return `${seconds}s`;
+    if (remaining < 60) return `${remaining}s`;
+    if (remaining < 3600) return `${Math.floor(remaining / 60)}m`;
+    return `${Math.floor(remaining / 3600)}h`;
   };
 
-  if (activeBets.length === 0) {
+  const pendingBets = betsData?.pendingBets || [];
+  const matchedBets = betsData?.matchedBets || [];
+
+  if (!address) {
     return (
-      <div className="bg-base-100 border border-base-300 rounded-lg p-8 text-center">
-        <p className="text-lg text-base-content/70">No active bets yet. Create the first one!</p>
+      <div className="bg-base-100 border border-base-300 rounded-xl p-8 text-center">
+        <p className="text-gray-600">Connect your wallet to view active bets</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {activeBets.map(bet => {
-        const timeRemaining = getTimeRemaining(bet.deadline);
-        const joinTimeRemaining = getTimeRemaining(bet.joinDeadline);
-        const isExpired = timeRemaining === "Expired";
-        const isJoinExpired = joinTimeRemaining === "Expired";
-        const canJoin = !bet.hasJoiner && !isJoinExpired && bet.creator.toLowerCase() !== address?.toLowerCase();
-        const canResolve = bet.hasJoiner && isExpired;
-        const canCancel = !bet.hasJoiner && isJoinExpired && bet.creator.toLowerCase() === address?.toLowerCase();
-        const isExpanded = expandedBets.has(bet.betId);
+    <div className="bg-base-100 border border-base-300 rounded-xl p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-base-content">Active Bets</h2>
+        <button
+          onClick={() => refetchBets()}
+          className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-1"
+          disabled={betsLoading}
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Refresh
+        </button>
+      </div>
 
-        return (
-          <div
-            key={bet.betId}
-            className="bg-base-100 border border-base-300 rounded-lg p-6 hover:shadow-md transition-shadow"
-          >
-            {/* ENS Subdomain */}
-            <h3 className="text-lg font-semibold flex items-center gap-2 mb-4">
-              <TrophyIcon className="w-5 h-5 text-gray-700" />
-              {bet.ensSubdomain}.betflix.eth
-            </h3>
+      {/* Tab Navigation */}
+      <div className="flex gap-4 mb-6 border-b border-base-300">
+        <button
+          className={`pb-2 px-1 font-medium transition-colors ${
+            activeTab === "pending"
+              ? "text-primary border-b-2 border-primary"
+              : "text-base-content/70 hover:text-base-content"
+          }`}
+          onClick={() => setActiveTab("pending")}
+        >
+          Pending Bets ({pendingBets.length})
+        </button>
+        <button
+          className={`pb-2 px-1 font-medium transition-colors ${
+            activeTab === "matched"
+              ? "text-primary border-b-2 border-primary"
+              : "text-base-content/70 hover:text-base-content"
+          }`}
+          onClick={() => setActiveTab("matched")}
+        >
+          Matched Bets ({matchedBets.length})
+        </button>
+      </div>
 
-            {/* Bet Details */}
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <span className="text-gray-600">Amount:</span>
-                <span className="ml-2 font-semibold text-gray-900">{formatEther(bet.amount)} ETH</span>
-              </div>
-              <div className="flex items-center">
-                <UserGroupIcon className="w-4 h-4 mr-1 text-gray-600" />
-                <span className="text-gray-900">{bet.hasJoiner ? "2/2" : "1/2"} players</span>
-              </div>
-              <div className="flex items-center">
-                <ClockIcon className="w-4 h-4 mr-1 text-gray-600" />
-                <span className={isExpired ? "text-red-600" : "text-gray-900"}>{timeRemaining}</span>
-              </div>
-              {!bet.hasJoiner && (
-                <div className="flex items-center">
-                  <span className="text-gray-600">Join by:</span>
-                  <span className={`ml-2 ${isJoinExpired ? "text-red-600" : "text-gray-900"}`}>
-                    {joinTimeRemaining}
-                  </span>
+      {/* Loading State */}
+      {betsLoading && (
+        <div className="flex justify-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      )}
+
+      {/* Bets List */}
+      <div className="space-y-4">
+        {activeTab === "pending" &&
+          pendingBets.map((bet: BetData) => {
+            const isExpanded = expandedBets.has(bet.id);
+            const timeRemaining = getTimeRemaining(bet.joinDeadline);
+            const isJoinExpired = timeRemaining === "Expired";
+            const canJoin = !isJoinExpired && bet.creator.address.toLowerCase() !== address?.toLowerCase();
+            const canCancel = bet.creator.address.toLowerCase() === address?.toLowerCase() && isJoinExpired;
+
+            return (
+              <div key={bet.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                {/* Bet Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg font-semibold text-gray-900">{bet.assetPair}</span>
+                      <span className="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
+                        Waiting for opponent
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600">Target: ${bet.targetPriceUSD}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-gray-900">{formatEther(BigInt(bet.amount))} ETH</div>
+                    <div className="text-sm text-gray-600">
+                      Join by: {isJoinExpired ? <span className="text-red-600">Expired</span> : timeRemaining}
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
 
-            {/* Expand/Collapse Button */}
-            <button
-              className="text-sm text-gray-600 hover:text-gray-800 transition-colors mt-2"
-              onClick={() => toggleExpanded(bet.betId)}
-            >
-              {isExpanded ? "Hide Details ↑" : "Show Details ↓"}
-            </button>
+                {/* Bet Details */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                  <div>
+                    <span className="text-gray-600">Creator:</span>
+                    <div className="text-gray-900">
+                      {bet.creator.address.slice(0, 6)}...{bet.creator.address.slice(-4)}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">ENS Trophy:</span>
+                    <div className="text-gray-900">{bet.ensSubdomain}.betflix.eth</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Duration:</span>
+                    <div className="text-gray-900">{getTimeRemaining(bet.deadline)}</div>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Created:</span>
+                    <div className="text-gray-900">{new Date(parseInt(bet.createdAt) * 1000).toLocaleTimeString()}</div>
+                  </div>
+                </div>
 
-            {/* Expanded Details */}
-            {isExpanded && <BetDetails betId={bet.betId} />}
+                {/* Actions */}
+                <div className="flex justify-end gap-2">
+                  {canJoin && (
+                    <button
+                      className={`px-4 py-2 bg-primary text-white rounded-lg font-medium hover:bg-primary-focus transition-colors ${
+                        isJoining === bet.id ? "opacity-75 cursor-not-allowed" : ""
+                      }`}
+                      onClick={() => handleJoinBet(bet.id, bet.amount)}
+                      disabled={isJoining === bet.id}
+                    >
+                      {isJoining === bet.id ? "Joining..." : "Join Bet"}
+                    </button>
+                  )}
+                  {canCancel && (
+                    <button
+                      className={`px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors ${
+                        isCancelling === bet.id ? "opacity-75 cursor-not-allowed" : ""
+                      }`}
+                      onClick={() => handleCancelBet(bet.id)}
+                      disabled={isCancelling === bet.id}
+                    >
+                      {isCancelling === bet.id ? "Cancelling..." : "Cancel Bet"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
 
-            {/* Actions */}
-            <div className="flex justify-end gap-2 mt-4">
-              {canJoin && (
-                <button
-                  className={`px-4 py-2 bg-black text-white text-sm rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                    isJoining === bet.betId ? "opacity-75" : ""
-                  }`}
-                  onClick={() => handleJoinBet(bet.betId, bet.amount)}
-                  disabled={isJoining === bet.betId}
-                >
-                  {isJoining === bet.betId ? "Joining..." : "Join Bet (I bet NO)"}
-                </button>
-              )}
+        {activeTab === "matched" &&
+          matchedBets.map((bet: BetData) => {
+            const isExpanded = expandedBets.has(bet.id);
 
-              {canResolve && (
-                <ResolveBetButton
-                  betId={bet.betId}
-                  isResolving={isResolving === bet.betId}
-                  onResolve={handleResolveBet}
-                />
-              )}
+            return (
+              <div key={bet.id} className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                {/* Bet Header */}
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-lg font-semibold text-gray-900">{bet.assetPair}</span>
+                      <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Active</span>
+                    </div>
+                    <div className="text-sm text-gray-600">Target: ${bet.targetPriceUSD}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-semibold text-gray-900">
+                      {formatEther(BigInt(bet.amount) * 2n)} ETH
+                    </div>
+                    <div className="text-sm text-gray-600">Total Pot</div>
+                  </div>
+                </div>
 
-              {canCancel && (
-                <button
-                  className={`px-4 py-2 bg-red-600 text-white text-sm rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
-                    isCancelling === bet.betId ? "opacity-75" : ""
-                  }`}
-                  onClick={() => handleCancelBet(bet.betId)}
-                  disabled={isCancelling === bet.betId}
-                >
-                  {isCancelling === bet.betId ? "Cancelling..." : "Cancel Bet"}
-                </button>
-              )}
+                {/* Players */}
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-sm text-gray-600 mb-1">Player 1 (YES)</div>
+                    <div className="font-medium text-gray-900">
+                      {bet.creator.address.slice(0, 6)}...{bet.creator.address.slice(-4)}
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-sm text-gray-600 mb-1">Player 2 (NO)</div>
+                    <div className="font-medium text-gray-900">
+                      {bet.joiner?.address.slice(0, 6)}...{bet.joiner?.address.slice(-4)}
+                    </div>
+                  </div>
+                </div>
 
-              {!bet.hasJoiner && !isJoinExpired && (
-                <span className="text-sm text-gray-500">Waiting for opponent...</span>
-              )}
+                {/* Actions */}
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-gray-600">
+                    ENS Trophy: <span className="font-medium">{bet.ensSubdomain}.betflix.eth</span>
+                  </div>
+                  <ResolveBetButton
+                    betId={bet.id}
+                    deadline={bet.deadline}
+                    priceFeedId={bet.priceFeedId}
+                    isResolving={isResolving === bet.id}
+                    onResolve={handleResolveBet}
+                  />
+                </div>
+              </div>
+            );
+          })}
 
-              {bet.hasJoiner && !isExpired && <span className="text-sm text-amber-600">Bet in progress</span>}
-            </div>
+        {/* Empty States */}
+        {activeTab === "pending" && pendingBets.length === 0 && !betsLoading && (
+          <div className="text-center py-8 text-gray-500">No pending bets available. Create one to get started!</div>
+        )}
+
+        {activeTab === "matched" && matchedBets.length === 0 && !betsLoading && (
+          <div className="text-center py-8 text-gray-500">
+            No matched bets yet. Join a pending bet to start playing!
           </div>
-        );
-      })}
+        )}
+      </div>
     </div>
   );
 };

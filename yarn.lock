@@ -5902,6 +5902,7 @@ __metadata:
     "@uniswap/v2-sdk": ~4.6.1
     abitype: 1.0.6
     autoprefixer: ~10.4.20
+    axios: ^1.12.2
     bgipfs: ~0.0.12
     blo: ~1.2.0
     burner-connector: 0.0.18
@@ -5910,7 +5911,7 @@ __metadata:
     eslint-config-next: ~15.2.3
     eslint-config-prettier: ~10.1.1
     eslint-plugin-prettier: ~5.2.4
-    graphql: ~16.8.1
+    graphql: ^16.11.0
     kubo-rpc-client: ~5.0.2
     next: ~15.2.3
     next-nprogress-bar: ~2.3.13
@@ -8815,7 +8816,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.7":
+"axios@npm:^1.12.2, axios@npm:^1.6.7":
   version: 1.12.2
   resolution: "axios@npm:1.12.2"
   dependencies:
@@ -13407,17 +13408,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:^16.6.0":
+"graphql@npm:^16.11.0, graphql@npm:^16.6.0":
   version: 16.11.0
   resolution: "graphql@npm:16.11.0"
   checksum: 65bc206edbe980f2759a8e4cf324873f75a66ab48263961472716e50127ae446739be20f926bb7f036a8d199bd4de072f684fd147c285bd6ba965d98cebb6200
-  languageName: node
-  linkType: hard
-
-"graphql@npm:~16.8.1":
-  version: 16.8.2
-  resolution: "graphql@npm:16.8.2"
-  checksum: 1a5ba8087b3ffb60627ab4b71565e77049f621da49144985d3b1e35a9c70bf846476a7b5912342eda72d70bd71f9427a3d73712b4250e0175d458b8011c9deba
   languageName: node
   linkType: hard
 
