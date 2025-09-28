@@ -17,7 +17,7 @@ interface QueryOptions {
 
 // Simple in-memory cache to reduce requests
 const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 300000; // 5 minutes cache to prevent repeated requests
+const CACHE_DURATION = 300000;
 
 // Global rate limiting
 let lastRequestTime = 0;
