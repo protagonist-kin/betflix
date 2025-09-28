@@ -7,7 +7,7 @@ async function main() {
   const abi = JSON.parse(fs.readFileSync(abiPath, "utf8"));
 
   // Get the deployed contract address from environment variable
-  const contractAddress = "0xeFA1543b742790E711BC02CCAbEF775f3a46583E";
+  const contractAddress = "0xc451425db45500b73a9D5C6E1f5F8a7A4BDb5229";
 
   if (!contractAddress) {
     throw new Error("BETFLIX_CONTRACT_ADDRESS environment variable not set");
