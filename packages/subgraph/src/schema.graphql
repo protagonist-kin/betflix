@@ -1,17 +1,91 @@
-type Greeting @entity(immutable:true) {
-  id: ID!
-  sender: Sender!
-  greeting: String!
-  premium: Boolean
-  value: BigInt
+type Bet @entity(immutable: false) {
+  id: ID! # betId from contract
+  creator: User!
+  joiner: User
+  amount: BigInt!
+  targetPrice: BigInt!
+  targetPriceUSD: BigInt! # Human readable USD price
+  startPrice: BigInt!
+  priceExponent: Int!
+  priceFeedId: Bytes!
+  assetPair: String! # ETH/USD or BTC/USD
+  deadline: BigInt!
+  joinDeadline: BigInt!
+  ensSubdomain: String!
+  ensLabel: Bytes!
+  pythUpdateFee: BigInt!
+  
+  # Status fields
+  status: BetStatus!
+  resolved: Boolean!
+  cancelled: Boolean!
+  winner: User
+  
+  # Timestamps
   createdAt: BigInt!
-  transactionHash: String!
+  createdTx: String!
+  joinedAt: BigInt
+  joinedTx: String
+  resolvedAt: BigInt
+  resolvedTx: String
+  cancelledAt: BigInt
+  cancelledTx: String
 }
 
-type Sender @entity(immutable:true) {
-  id: ID!
+type User @entity(immutable: false) {
+  id: ID! # user address
   address: Bytes!
-  greetings: [Greeting!] @derivedFrom(field: "sender")
-  createdAt: BigInt!
-  greetingCount: BigInt!
+  
+  # Bets created and joined
+  betsCreated: [Bet!]! @derivedFrom(field: "creator")
+  betsJoined: [Bet!]! @derivedFrom(field: "joiner")
+  betsWon: [Bet!]! @derivedFrom(field: "winner")
+  
+  # Stats
+  totalBetsCreated: BigInt!
+  totalBetsJoined: BigInt!
+  totalBetsWon: BigInt!
+  totalAmountBet: BigInt!
+  totalAmountWon: BigInt!
+  
+  # ENS trophies won
+  ensTrophies: [String!]!
+  
+  # Timestamps
+  firstBetAt: BigInt!
+  lastActiveAt: BigInt!
+}
+
+type GlobalStats @entity(immutable: false) {
+  id: ID! # "global"
+  totalBets: BigInt!
+  totalActiveBets: BigInt!
+  totalResolvedBets: BigInt!
+  totalCancelledBets: BigInt!
+  totalVolume: BigInt!
+  totalUsers: BigInt!
+  
+  # Asset-specific stats
+  ethBetsCount: BigInt!
+  btcBetsCount: BigInt!
+  ethVolume: BigInt!
+  btcVolume: BigInt!
+}
+
+enum BetStatus {
+  PENDING    # Created but no joiner yet
+  ACTIVE     # Has joiner, waiting for deadline
+  RESOLVED   # Bet resolved with winner
+  CANCELLED  # Bet cancelled (no joiner)
+}
+
+# For tracking daily/hourly stats
+type DailyStats @entity(immutable: false) {
+  id: ID! # timestamp-rounded-to-day
+  date: BigInt!
+  betsCreated: BigInt!
+  betsResolved: BigInt!
+  volume: BigInt!
+  uniqueUsers: BigInt!
+  newUsers: BigInt!
 }

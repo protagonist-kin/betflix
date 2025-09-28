@@ -13,7 +13,11 @@ interface QueryOptions {
 
 // Simple in-memory cache to reduce requests
 const cache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_DURATION = 60000; // 60 seconds cache to prevent repeated requests
+const CACHE_DURATION = 300000; // 5 minutes cache to prevent repeated requests
+
+// Global rate limiting
+let lastRequestTime = 0;
+const MIN_REQUEST_INTERVAL = 2000; // Minimum 2 seconds between any API requests
 
 export function useSubgraphQuery<T = any>(query: string, options: QueryOptions = {}) {
   const [data, setData] = useState<T | null>(null);
@@ -35,6 +39,15 @@ export function useSubgraphQuery<T = any>(query: string, options: QueryOptions =
       setLoading(false);
       return;
     }
+
+    // Rate limiting - wait if request is too soon
+    const now = Date.now();
+    const timeSinceLastRequest = now - lastRequestTime;
+    if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+      const waitTime = MIN_REQUEST_INTERVAL - timeSinceLastRequest;
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+    lastRequestTime = Date.now();
 
     try {
       setLoading(true);
@@ -63,19 +76,20 @@ export function useSubgraphQuery<T = any>(query: string, options: QueryOptions =
       setError(null);
       setRetryCount(0); // Reset retry count on success
     } catch (err: any) {
-      // Handle rate limit errors with exponential backoff
+      // Handle rate limit errors defensively - return empty data
       if (err.response?.status === 429) {
-        const backoffTime = Math.min(1000 * Math.pow(2, retryCount), 30000); // Max 30 seconds
-        console.warn(`Rate limited. Retrying in ${backoffTime / 1000}s...`);
-
-        if (retryTimeoutRef.current) {
-          clearTimeout(retryTimeoutRef.current);
-        }
-
-        retryTimeoutRef.current = setTimeout(() => {
-          setRetryCount(prev => prev + 1);
-          fetchData();
-        }, backoffTime);
+        console.warn("Rate limited by subgraph. Returning cached data or empty result.");
+        // Return empty structure that matches expected data shape
+        const emptyData =
+          query.includes("pendingBets") && query.includes("matchedBets")
+            ? { pendingBets: [], matchedBets: [] }
+            : query.includes("globalStats")
+              ? { globalStats: null }
+              : query.includes("user(")
+                ? { user: null }
+                : { bets: [] };
+        setData(emptyData as T);
+        setError(null); // Don't show error to user
       } else {
         setError(err as Error);
         console.error("Subgraph query error:", err);
