@@ -101,7 +101,7 @@ export const ActiveBets = () => {
     loading: betsLoading,
     refetch: refetchBets,
   } = useSubgraphQuery<{ pendingBets: BetData[]; matchedBets: BetData[] }>(GET_ALL_ACTIVE_BETS, {
-    variables: { first: 100, skip: 0 },
+    variables: { first: 20, skip: 0 }, // Reduced from 100 to 20 for better performance
     // No automatic polling - only fetch on mount and manual refresh
   });
 

@@ -63,27 +63,22 @@ export const GET_ALL_ACTIVE_BETS = `
     pendingBets: bets(first: $first, skip: $skip, where: { status: PENDING }, orderBy: createdAt, orderDirection: desc) {
       id
       creator {
-        id
         address
       }
       amount
       targetPriceUSD
-      priceFeedId
       assetPair
       deadline
       joinDeadline
       ensSubdomain
-      status
       createdAt
     }
     matchedBets: bets(first: $first, skip: $skip, where: { status: ACTIVE }, orderBy: createdAt, orderDirection: desc) {
       id
       creator {
-        id
         address
       }
       joiner {
-        id
         address
       }
       amount
@@ -92,7 +87,6 @@ export const GET_ALL_ACTIVE_BETS = `
       assetPair
       deadline
       ensSubdomain
-      status
       createdAt
     }
   }
@@ -101,60 +95,38 @@ export const GET_ALL_ACTIVE_BETS = `
 export const GET_USER_BETS = `
   query GetUserBets($userAddress: String!, $first: Int!, $skip: Int!) {
     user(id: $userAddress) {
-      id
-      address
-      betsCreated {
+      betsCreated(first: $first, skip: $skip, orderBy: createdAt, orderDirection: desc) {
         id
         joiner {
-          id
           address
         }
         amount
-        targetPrice
         targetPriceUSD
         assetPair
         deadline
         ensSubdomain
         status
-        resolved
-        cancelled
         winner {
-          id
           address
         }
         createdAt
-        resolvedAt
-        cancelledAt
       }
-      betsJoined {
+      betsJoined(first: $first, skip: $skip, orderBy: createdAt, orderDirection: desc) {
         id
         creator {
-          id
           address
         }
         amount
-        targetPrice
         targetPriceUSD
         assetPair
         deadline
         ensSubdomain
         status
-        resolved
-        cancelled
         winner {
-          id
           address
         }
         createdAt
-        joinedAt
-        resolvedAt
       }
-      totalBetsCreated
-      totalBetsJoined
-      totalBetsWon
-      totalAmountBet
-      totalAmountWon
-      ensTrophies
     }
   }
 `;
@@ -164,14 +136,7 @@ export const GET_GLOBAL_STATS = `
     globalStats(id: "global") {
       totalBets
       totalActiveBets
-      totalResolvedBets
-      totalCancelledBets
       totalVolume
-      totalUsers
-      ethBetsCount
-      btcBetsCount
-      ethVolume
-      btcVolume
     }
   }
 `;

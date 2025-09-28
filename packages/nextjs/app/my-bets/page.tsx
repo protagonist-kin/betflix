@@ -50,7 +50,7 @@ export default function MyBetsPage() {
   }>(GET_USER_BETS, {
     variables: {
       userAddress: address?.toLowerCase() || "",
-      first: 100,
+      first: 30, // Reduced from 100 to 30 for better performance
       skip: 0,
     },
     skip: !address,

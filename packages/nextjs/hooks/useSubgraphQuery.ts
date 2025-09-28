@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
-const SUBGRAPH_URL = "https://api.studio.thegraph.com/query/121821/betflix/version/latest";
+// The Graph Gateway URL with subgraph ID
+const SUBGRAPH_ID = "9Wfi2JmF3LFwbaEgmvZad3vyCr45C684oyA1aRmV3mYY";
+const SUBGRAPH_URL = `https://gateway.thegraph.com/api/subgraphs/id/${SUBGRAPH_ID}`;
+
+// Get API key from environment variable
+const API_KEY = process.env.NEXT_PUBLIC_GRAPH_API_KEY || "";
 
 interface QueryOptions {
   variables?: Record<string, any>;
@@ -56,10 +61,12 @@ export function useSubgraphQuery<T = any>(query: string, options: QueryOptions =
         {
           query,
           variables: options.variables || {},
+          operationName: "Subgraphs",
         },
         {
           headers: {
             "Content-Type": "application/json",
+            ...(API_KEY ? { Authorization: `Bearer ${API_KEY}` } : {}),
           },
           timeout: 10000, // 10 second timeout
         },
