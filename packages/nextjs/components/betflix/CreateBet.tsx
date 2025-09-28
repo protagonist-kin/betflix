@@ -427,7 +427,7 @@ export const CreateBet = () => {
       {/* Info */}
       <div className="text-sm text-gray-600 mt-6 space-y-1">
         <p>• You are betting that {selectedFeed.split("/")[0]} will reach the target price</p>
-        <p>• If someone joins, they bet it won't reach the target</p>
+        <p>• If someone joins, they bet it won&apos;t reach the target</p>
         <p>• Winner receives the ENS subdomain as a trophy</p>
       </div>
     </div>
