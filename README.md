@@ -1,12 +1,14 @@
-# Betflix - Real-Time Price Betting Protocol
+# [Betflix](https://betflix-and-chill.vercel.app) - Real-Time Price Betting Protocol
+
+<img width="1024" height="1024" alt="BetflixLogo" src="https://github.com/user-attachments/assets/c7b378c9-a538-45d0-9bfe-559099603cde" />
 
 Head-to-head betting on crypto price movements with instant settlement. Users create bets with specific price targets and durations (5-60 minutes), other users take the opposite position, and winners receive ENS subdomain trophies.
 
-## Technical Architecture
+## Core Components Used
 
 ### Pyth Network
 
-- On-demand price feed updates with sub-second accuracy
+- On-demand price feed updates.
 - Creator pays update fee upfront, resolver gets refunded
 - Validates price freshness and exponent consistency
 
@@ -45,14 +47,16 @@ Head-to-head betting on crypto price movements with instant settlement. Users cr
 
 ## Development Tools
 
-- Scaffold-ETH 2 framework
+- Scaffold-ETH 2 framework 🙏
 - Hardhat for contract development
 - Next.js for frontend
-- TypeScript throughout
 
 ## Acknowledgments
 
-- AI assistance for code documentation and visual assets
+- AI assistance for code documentation and generation of NAT SPEC documentation.
+- AI assistance for Logo and Cover image generation.
+- AI assistance for security review of Smart Contract and deployment scripts.
+- AI assistance for CSS and basic designs.
 - Open source libraries and protocols used
 
 ## License
