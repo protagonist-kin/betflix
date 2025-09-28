@@ -1,7 +1,5 @@
 # [Betflix](https://betflix-and-chill.vercel.app) - Real-Time Price Betting Protocol
 
-<img width="1024" height="1024" alt="BetflixLogo" src="https://github.com/user-attachments/assets/c7b378c9-a538-45d0-9bfe-559099603cde" />
-
 Head-to-head betting on crypto price movements with instant settlement. Users create bets with specific price targets and durations (5-60 minutes), other users take the opposite position, and winners receive ENS subdomain trophies.
 
 ## Core Components Used
