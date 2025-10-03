@@ -208,7 +208,7 @@ export default function MyBetsPage() {
                         </span>
                       </div>
                       <div className="text-sm text-gray-600">
-                        Target: {bet.targetPrice} • Position: {position}
+                        Target: ${(Number(bet.targetPrice) / 1e8).toFixed(2)} • Position: {position}
                       </div>
                     </div>
                     <div className="text-right">

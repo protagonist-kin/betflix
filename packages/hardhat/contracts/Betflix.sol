@@ -102,7 +102,8 @@ contract Betflix is ReentrancyGuard, Ownable {
         uint256 amount,
         uint256 deadline,
         uint256 joinDeadline,
-        string ensSubdomain
+        string ensSubdomain,
+        bytes32 priceFeedId
     );
 
     /// @notice Emitted when a player joins an existing bet
@@ -423,7 +424,8 @@ contract Betflix is ReentrancyGuard, Ownable {
             _betAmount,
             block.timestamp + _duration,
             block.timestamp + _joinDuration,
-            _ensSubdomain
+            _ensSubdomain,
+            _priceFeedId
         );
     }
 

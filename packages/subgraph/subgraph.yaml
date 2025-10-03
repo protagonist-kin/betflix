@@ -9,8 +9,8 @@ dataSources:
     network: sepolia
     source:
       abi: Betflix
-      address: "0x5d4fb9e6d06faf378e68cDbd056054E21dE8EA06"
-      startBlock: 9295368
+      address: "0xc07fa4CCE363e5b6455A475c21eC37b20f3a6473"
+      startBlock: 9333077
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -24,7 +24,7 @@ dataSources:
         - name: Betflix
           file: ./abis/Betflix.json
       eventHandlers:
-        - event: BetCreated(bytes32,address,int64,uint256,uint256,uint256,string)
+        - event: BetCreated(bytes32,address,int64,uint256,uint256,uint256,string,bytes32)
           handler: handleBetCreated
         - event: BetJoined(bytes32,address)
           handler: handleBetJoined

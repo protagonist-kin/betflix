@@ -235,6 +235,12 @@
         "internalType": "string",
         "name": "ensSubdomain",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "priceFeedId",
+        "type": "bytes32"
       }
     ],
     "name": "BetCreated",

@@ -348,7 +348,9 @@ export const ActiveBets = () => {
                         Waiting for opponent
                       </span>
                     </div>
-                    <div className="text-sm text-gray-600">Target: ${bet.targetPriceUSD}</div>
+                    <div className="text-sm text-gray-600">
+                      Target: ${(Number(bet.targetPriceUSD) / 1e8).toFixed(2)}
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-semibold text-gray-900">{formatEther(BigInt(bet.amount))} ETH</div>
@@ -422,7 +424,9 @@ export const ActiveBets = () => {
                       <span className="text-lg font-semibold text-gray-900">{bet.assetPair}</span>
                       <span className="text-sm bg-green-100 text-green-800 px-2 py-1 rounded">Active</span>
                     </div>
-                    <div className="text-sm text-gray-600">Target: ${bet.targetPriceUSD}</div>
+                    <div className="text-sm text-gray-600">
+                      Target: ${(Number(bet.targetPriceUSD) / 1e8).toFixed(2)}
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-semibold text-gray-900">

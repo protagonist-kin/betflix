@@ -6,926 +6,932 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 
 const deployedContracts = {
   "11155111": {
-    "Betflix": {
-      "address": "0x5d4fb9e6d06faf378e68cDbd056054E21dE8EA06",
-      "abi": [
+    Betflix: {
+      address: "0x5d4fb9e6d06faf378e68cDbd056054E21dE8EA06",
+      abi: [
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "address",
-              "name": "_pythAddress",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "_pythAddress",
+              type: "address",
+            },
           ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
+          stateMutability: "nonpayable",
+          type: "constructor",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
           ],
-          "name": "AddressInsufficientBalance",
-          "type": "error"
+          name: "AddressInsufficientBalance",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetAlreadyExists",
-          "type": "error"
+          inputs: [],
+          name: "BetAlreadyExists",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetAlreadyJoined",
-          "type": "error"
+          inputs: [],
+          name: "BetAlreadyJoined",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetAlreadyResolved",
-          "type": "error"
+          inputs: [],
+          name: "BetAlreadyResolved",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetAmountTooLow",
-          "type": "error"
+          inputs: [],
+          name: "BetAmountTooLow",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetDoesNotExist",
-          "type": "error"
+          inputs: [],
+          name: "BetDoesNotExist",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetDurationInvalid",
-          "type": "error"
+          inputs: [],
+          name: "BetDurationInvalid",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetExpired",
-          "type": "error"
+          inputs: [],
+          name: "BetExpired",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetNotExpired",
-          "type": "error"
+          inputs: [],
+          name: "BetNotExpired",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "BetNotMatched",
-          "type": "error"
+          inputs: [],
+          name: "BetNotMatched",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "ENSSubdomainTaken",
-          "type": "error"
+          inputs: [],
+          name: "ENSSubdomainTaken",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "FailedInnerCall",
-          "type": "error"
+          inputs: [],
+          name: "FailedInnerCall",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "InsufficientPythFee",
-          "type": "error"
+          inputs: [],
+          name: "InsufficientPythFee",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "InvalidENSSubdomain",
-          "type": "error"
+          inputs: [],
+          name: "InvalidENSSubdomain",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "OnlyCreatorCanRefund",
-          "type": "error"
+          inputs: [],
+          name: "OnlyCreatorCanRefund",
+          type: "error",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "address",
-              "name": "owner",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "owner",
+              type: "address",
+            },
           ],
-          "name": "OwnableInvalidOwner",
-          "type": "error"
+          name: "OwnableInvalidOwner",
+          type: "error",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "address",
-              "name": "account",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "account",
+              type: "address",
+            },
           ],
-          "name": "OwnableUnauthorizedAccount",
-          "type": "error"
+          name: "OwnableUnauthorizedAccount",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "PriceStale",
-          "type": "error"
+          inputs: [],
+          name: "PriceStale",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "ReentrancyGuardReentrantCall",
-          "type": "error"
+          inputs: [],
+          name: "ReentrancyGuardReentrantCall",
+          type: "error",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "uint8",
-              "name": "bits",
-              "type": "uint8"
+              internalType: "uint8",
+              name: "bits",
+              type: "uint8",
             },
             {
-              "internalType": "int256",
-              "name": "value",
-              "type": "int256"
-            }
+              internalType: "int256",
+              name: "value",
+              type: "int256",
+            },
           ],
-          "name": "SafeCastOverflowedIntDowncast",
-          "type": "error"
+          name: "SafeCastOverflowedIntDowncast",
+          type: "error",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "int256",
-              "name": "value",
-              "type": "int256"
-            }
+              internalType: "int256",
+              name: "value",
+              type: "int256",
+            },
           ],
-          "name": "SafeCastOverflowedIntToUint",
-          "type": "error"
+          name: "SafeCastOverflowedIntToUint",
+          type: "error",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "uint256",
-              "name": "value",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "value",
+              type: "uint256",
+            },
           ],
-          "name": "SafeCastOverflowedUintToInt",
-          "type": "error"
+          name: "SafeCastOverflowedUintToInt",
+          type: "error",
         },
         {
-          "inputs": [],
-          "name": "ZeroAddress",
-          "type": "error"
+          inputs: [],
+          name: "ZeroAddress",
+          type: "error",
         },
         {
-          "anonymous": false,
-          "inputs": [
+          anonymous: false,
+          inputs: [
             {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "betId",
-              "type": "bytes32"
+              indexed: false,
+              internalType: "bytes32",
+              name: "betId",
+              type: "bytes32",
             },
             {
-              "indexed": false,
-              "internalType": "address",
-              "name": "creator",
-              "type": "address"
+              indexed: false,
+              internalType: "address",
+              name: "creator",
+              type: "address",
             },
             {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "refundAmount",
-              "type": "uint256"
-            }
+              indexed: false,
+              internalType: "uint256",
+              name: "refundAmount",
+              type: "uint256",
+            },
           ],
-          "name": "BetCancelled",
-          "type": "event"
+          name: "BetCancelled",
+          type: "event",
         },
         {
-          "anonymous": false,
-          "inputs": [
+          anonymous: false,
+          inputs: [
             {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "betId",
-              "type": "bytes32"
+              indexed: false,
+              internalType: "bytes32",
+              name: "betId",
+              type: "bytes32",
             },
             {
-              "indexed": false,
-              "internalType": "address",
-              "name": "creator",
-              "type": "address"
+              indexed: false,
+              internalType: "address",
+              name: "creator",
+              type: "address",
             },
             {
-              "indexed": false,
-              "internalType": "int64",
-              "name": "targetPrice",
-              "type": "int64"
+              indexed: false,
+              internalType: "int64",
+              name: "targetPrice",
+              type: "int64",
             },
             {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
+              indexed: false,
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
             },
             {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "deadline",
-              "type": "uint256"
+              indexed: false,
+              internalType: "uint256",
+              name: "deadline",
+              type: "uint256",
             },
             {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "joinDeadline",
-              "type": "uint256"
+              indexed: false,
+              internalType: "uint256",
+              name: "joinDeadline",
+              type: "uint256",
             },
             {
-              "indexed": false,
-              "internalType": "string",
-              "name": "ensSubdomain",
-              "type": "string"
-            }
+              indexed: false,
+              internalType: "string",
+              name: "ensSubdomain",
+              type: "string",
+            },
+            {
+              indexed: false,
+              internalType: "bytes32",
+              name: "priceFeedId",
+              type: "bytes32",
+            },
           ],
-          "name": "BetCreated",
-          "type": "event"
+          name: "BetCreated",
+          type: "event",
         },
         {
-          "anonymous": false,
-          "inputs": [
+          anonymous: false,
+          inputs: [
             {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "betId",
-              "type": "bytes32"
+              indexed: false,
+              internalType: "bytes32",
+              name: "betId",
+              type: "bytes32",
             },
             {
-              "indexed": false,
-              "internalType": "address",
-              "name": "joiner",
-              "type": "address"
-            }
+              indexed: false,
+              internalType: "address",
+              name: "joiner",
+              type: "address",
+            },
           ],
-          "name": "BetJoined",
-          "type": "event"
+          name: "BetJoined",
+          type: "event",
         },
         {
-          "anonymous": false,
-          "inputs": [
+          anonymous: false,
+          inputs: [
             {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "betId",
-              "type": "bytes32"
+              indexed: false,
+              internalType: "bytes32",
+              name: "betId",
+              type: "bytes32",
             },
             {
-              "indexed": false,
-              "internalType": "address",
-              "name": "winner",
-              "type": "address"
+              indexed: false,
+              internalType: "address",
+              name: "winner",
+              type: "address",
             },
             {
-              "indexed": false,
-              "internalType": "address",
-              "name": "loser",
-              "type": "address"
+              indexed: false,
+              internalType: "address",
+              name: "loser",
+              type: "address",
             },
             {
-              "indexed": false,
-              "internalType": "int64",
-              "name": "finalPrice",
-              "type": "int64"
+              indexed: false,
+              internalType: "int64",
+              name: "finalPrice",
+              type: "int64",
             },
             {
-              "indexed": false,
-              "internalType": "uint256",
-              "name": "payout",
-              "type": "uint256"
+              indexed: false,
+              internalType: "uint256",
+              name: "payout",
+              type: "uint256",
             },
             {
-              "indexed": false,
-              "internalType": "string",
-              "name": "ensSubdomain",
-              "type": "string"
-            }
+              indexed: false,
+              internalType: "string",
+              name: "ensSubdomain",
+              type: "string",
+            },
           ],
-          "name": "BetResolved",
-          "type": "event"
+          name: "BetResolved",
+          type: "event",
         },
         {
-          "anonymous": false,
-          "inputs": [
+          anonymous: false,
+          inputs: [
             {
-              "indexed": false,
-              "internalType": "bytes32",
-              "name": "domainNode",
-              "type": "bytes32"
+              indexed: false,
+              internalType: "bytes32",
+              name: "domainNode",
+              type: "bytes32",
             },
             {
-              "indexed": false,
-              "internalType": "address",
-              "name": "resolver",
-              "type": "address"
-            }
+              indexed: false,
+              internalType: "address",
+              name: "resolver",
+              type: "address",
+            },
           ],
-          "name": "ENSConfigUpdated",
-          "type": "event"
+          name: "ENSConfigUpdated",
+          type: "event",
         },
         {
-          "anonymous": false,
-          "inputs": [
+          anonymous: false,
+          inputs: [
             {
-              "indexed": true,
-              "internalType": "address",
-              "name": "previousOwner",
-              "type": "address"
+              indexed: true,
+              internalType: "address",
+              name: "previousOwner",
+              type: "address",
             },
             {
-              "indexed": true,
-              "internalType": "address",
-              "name": "newOwner",
-              "type": "address"
-            }
+              indexed: true,
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
           ],
-          "name": "OwnershipTransferred",
-          "type": "event"
+          name: "OwnershipTransferred",
+          type: "event",
         },
         {
-          "inputs": [],
-          "name": "MAX_DURATION",
-          "outputs": [
+          inputs: [],
+          name: "MAX_DURATION",
+          outputs: [
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "MAX_JOIN_DURATION",
-          "outputs": [
+          inputs: [],
+          name: "MAX_JOIN_DURATION",
+          outputs: [
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "MAX_PRICE_AGE",
-          "outputs": [
+          inputs: [],
+          name: "MAX_PRICE_AGE",
+          outputs: [
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "MIN_BET",
-          "outputs": [
+          inputs: [],
+          name: "MIN_BET",
+          outputs: [
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "MIN_DURATION",
-          "outputs": [
+          inputs: [],
+          name: "MIN_DURATION",
+          outputs: [
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "MIN_JOIN_DURATION",
-          "outputs": [
+          inputs: [],
+          name: "MIN_JOIN_DURATION",
+          outputs: [
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
           ],
-          "name": "bets",
-          "outputs": [
+          name: "bets",
+          outputs: [
             {
-              "internalType": "address",
-              "name": "player1",
-              "type": "address"
+              internalType: "address",
+              name: "player1",
+              type: "address",
             },
             {
-              "internalType": "address",
-              "name": "player2",
-              "type": "address"
+              internalType: "address",
+              name: "player2",
+              type: "address",
             },
             {
-              "internalType": "uint256",
-              "name": "amount",
-              "type": "uint256"
+              internalType: "uint256",
+              name: "amount",
+              type: "uint256",
             },
             {
-              "internalType": "int64",
-              "name": "targetPrice",
-              "type": "int64"
+              internalType: "int64",
+              name: "targetPrice",
+              type: "int64",
             },
             {
-              "internalType": "int32",
-              "name": "priceExponent",
-              "type": "int32"
+              internalType: "int32",
+              name: "priceExponent",
+              type: "int32",
             },
             {
-              "internalType": "uint256",
-              "name": "deadline",
-              "type": "uint256"
+              internalType: "uint256",
+              name: "deadline",
+              type: "uint256",
             },
             {
-              "internalType": "uint256",
-              "name": "joinDeadline",
-              "type": "uint256"
+              internalType: "uint256",
+              name: "joinDeadline",
+              type: "uint256",
             },
             {
-              "internalType": "int64",
-              "name": "startPrice",
-              "type": "int64"
+              internalType: "int64",
+              name: "startPrice",
+              type: "int64",
             },
             {
-              "internalType": "uint256",
-              "name": "pythUpdateFee",
-              "type": "uint256"
+              internalType: "uint256",
+              name: "pythUpdateFee",
+              type: "uint256",
             },
             {
-              "internalType": "bool",
-              "name": "resolved",
-              "type": "bool"
+              internalType: "bool",
+              name: "resolved",
+              type: "bool",
             },
             {
-              "internalType": "bool",
-              "name": "cancelled",
-              "type": "bool"
+              internalType: "bool",
+              name: "cancelled",
+              type: "bool",
             },
             {
-              "internalType": "address",
-              "name": "winner",
-              "type": "address"
+              internalType: "address",
+              name: "winner",
+              type: "address",
             },
             {
-              "internalType": "bytes32",
-              "name": "priceFeedId",
-              "type": "bytes32"
+              internalType: "bytes32",
+              name: "priceFeedId",
+              type: "bytes32",
             },
             {
-              "internalType": "bytes32",
-              "name": "ensLabel",
-              "type": "bytes32"
+              internalType: "bytes32",
+              name: "ensLabel",
+              type: "bytes32",
             },
             {
-              "internalType": "string",
-              "name": "ensSubdomain",
-              "type": "string"
-            }
+              internalType: "string",
+              name: "ensSubdomain",
+              type: "string",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes32",
-              "name": "_betId",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "_betId",
+              type: "bytes32",
+            },
           ],
-          "name": "cancelBet",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
+          name: "cancelBet",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "address",
-              "name": "_nameWrapper",
-              "type": "address"
+              internalType: "address",
+              name: "_nameWrapper",
+              type: "address",
             },
             {
-              "internalType": "bytes32",
-              "name": "_domainNode",
-              "type": "bytes32"
+              internalType: "bytes32",
+              name: "_domainNode",
+              type: "bytes32",
             },
             {
-              "internalType": "address",
-              "name": "_resolver",
-              "type": "address"
+              internalType: "address",
+              name: "_resolver",
+              type: "address",
             },
             {
-              "internalType": "string",
-              "name": "_domainName",
-              "type": "string"
-            }
+              internalType: "string",
+              name: "_domainName",
+              type: "string",
+            },
           ],
-          "name": "configureENS",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
+          name: "configureENS",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes[]",
-              "name": "_pythUpdateData",
-              "type": "bytes[]"
+              internalType: "bytes[]",
+              name: "_pythUpdateData",
+              type: "bytes[]",
             },
             {
-              "internalType": "bytes32",
-              "name": "_priceFeedId",
-              "type": "bytes32"
+              internalType: "bytes32",
+              name: "_priceFeedId",
+              type: "bytes32",
             },
             {
-              "internalType": "uint256",
-              "name": "_targetPrice",
-              "type": "uint256"
+              internalType: "uint256",
+              name: "_targetPrice",
+              type: "uint256",
             },
             {
-              "internalType": "uint256",
-              "name": "_duration",
-              "type": "uint256"
+              internalType: "uint256",
+              name: "_duration",
+              type: "uint256",
             },
             {
-              "internalType": "uint256",
-              "name": "_joinDuration",
-              "type": "uint256"
+              internalType: "uint256",
+              name: "_joinDuration",
+              type: "uint256",
             },
             {
-              "internalType": "string",
-              "name": "_ensSubdomain",
-              "type": "string"
-            }
+              internalType: "string",
+              name: "_ensSubdomain",
+              type: "string",
+            },
           ],
-          "name": "createBet",
-          "outputs": [
+          name: "createBet",
+          outputs: [
             {
-              "internalType": "bytes32",
-              "name": "betId",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "betId",
+              type: "bytes32",
+            },
           ],
-          "stateMutability": "payable",
-          "type": "function"
+          stateMutability: "payable",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "address",
-              "name": "_newPythAddress",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "_newPythAddress",
+              type: "address",
+            },
           ],
-          "name": "emergencyUpdatePyth",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
+          name: "emergencyUpdatePyth",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "emergencyWithdrawAll",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
+          inputs: [],
+          name: "emergencyWithdrawAll",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "ensDomainName",
-          "outputs": [
+          inputs: [],
+          name: "ensDomainName",
+          outputs: [
             {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "ensDomainNode",
-          "outputs": [
+          inputs: [],
+          name: "ensDomainNode",
+          outputs: [
             {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "ensResolver",
-          "outputs": [
+          inputs: [],
+          name: "ensResolver",
+          outputs: [
             {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes32",
-              "name": "_betId",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "_betId",
+              type: "bytes32",
+            },
           ],
-          "name": "getBet",
-          "outputs": [
+          name: "getBet",
+          outputs: [
             {
-              "components": [
+              components: [
                 {
-                  "internalType": "address",
-                  "name": "player1",
-                  "type": "address"
+                  internalType: "address",
+                  name: "player1",
+                  type: "address",
                 },
                 {
-                  "internalType": "address",
-                  "name": "player2",
-                  "type": "address"
+                  internalType: "address",
+                  name: "player2",
+                  type: "address",
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "amount",
-                  "type": "uint256"
+                  internalType: "uint256",
+                  name: "amount",
+                  type: "uint256",
                 },
                 {
-                  "internalType": "int64",
-                  "name": "targetPrice",
-                  "type": "int64"
+                  internalType: "int64",
+                  name: "targetPrice",
+                  type: "int64",
                 },
                 {
-                  "internalType": "int32",
-                  "name": "priceExponent",
-                  "type": "int32"
+                  internalType: "int32",
+                  name: "priceExponent",
+                  type: "int32",
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "deadline",
-                  "type": "uint256"
+                  internalType: "uint256",
+                  name: "deadline",
+                  type: "uint256",
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "joinDeadline",
-                  "type": "uint256"
+                  internalType: "uint256",
+                  name: "joinDeadline",
+                  type: "uint256",
                 },
                 {
-                  "internalType": "int64",
-                  "name": "startPrice",
-                  "type": "int64"
+                  internalType: "int64",
+                  name: "startPrice",
+                  type: "int64",
                 },
                 {
-                  "internalType": "uint256",
-                  "name": "pythUpdateFee",
-                  "type": "uint256"
+                  internalType: "uint256",
+                  name: "pythUpdateFee",
+                  type: "uint256",
                 },
                 {
-                  "internalType": "bool",
-                  "name": "resolved",
-                  "type": "bool"
+                  internalType: "bool",
+                  name: "resolved",
+                  type: "bool",
                 },
                 {
-                  "internalType": "bool",
-                  "name": "cancelled",
-                  "type": "bool"
+                  internalType: "bool",
+                  name: "cancelled",
+                  type: "bool",
                 },
                 {
-                  "internalType": "address",
-                  "name": "winner",
-                  "type": "address"
+                  internalType: "address",
+                  name: "winner",
+                  type: "address",
                 },
                 {
-                  "internalType": "bytes32",
-                  "name": "priceFeedId",
-                  "type": "bytes32"
+                  internalType: "bytes32",
+                  name: "priceFeedId",
+                  type: "bytes32",
                 },
                 {
-                  "internalType": "bytes32",
-                  "name": "ensLabel",
-                  "type": "bytes32"
+                  internalType: "bytes32",
+                  name: "ensLabel",
+                  type: "bytes32",
                 },
                 {
-                  "internalType": "string",
-                  "name": "ensSubdomain",
-                  "type": "string"
-                }
+                  internalType: "string",
+                  name: "ensSubdomain",
+                  type: "string",
+                },
               ],
-              "internalType": "struct Betflix.Bet",
-              "name": "",
-              "type": "tuple"
-            }
+              internalType: "struct Betflix.Bet",
+              name: "",
+              type: "tuple",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes32",
-              "name": "_betId",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "_betId",
+              type: "bytes32",
+            },
           ],
-          "name": "getBetTargetPriceUSD",
-          "outputs": [
+          name: "getBetTargetPriceUSD",
+          outputs: [
             {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
+              internalType: "uint256",
+              name: "",
+              type: "uint256",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "string",
-              "name": "_subdomain",
-              "type": "string"
-            }
+              internalType: "string",
+              name: "_subdomain",
+              type: "string",
+            },
           ],
-          "name": "getFullENSDomain",
-          "outputs": [
+          name: "getFullENSDomain",
+          outputs: [
             {
-              "internalType": "string",
-              "name": "",
-              "type": "string"
-            }
+              internalType: "string",
+              name: "",
+              type: "string",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "string",
-              "name": "_subdomain",
-              "type": "string"
-            }
+              internalType: "string",
+              name: "_subdomain",
+              type: "string",
+            },
           ],
-          "name": "isSubdomainAvailable",
-          "outputs": [
+          name: "isSubdomainAvailable",
+          outputs: [
             {
-              "internalType": "bool",
-              "name": "available",
-              "type": "bool"
-            }
+              internalType: "bool",
+              name: "available",
+              type: "bool",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes32",
-              "name": "_betId",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "_betId",
+              type: "bytes32",
+            },
           ],
-          "name": "joinBet",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
+          name: "joinBet",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "nameWrapper",
-          "outputs": [
+          inputs: [],
+          name: "nameWrapper",
+          outputs: [
             {
-              "internalType": "contract INameWrapper",
-              "name": "",
-              "type": "address"
-            }
+              internalType: "contract INameWrapper",
+              name: "",
+              type: "address",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "owner",
-          "outputs": [
+          inputs: [],
+          name: "owner",
+          outputs: [
             {
-              "internalType": "address",
-              "name": "",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "",
+              type: "address",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "pyth",
-          "outputs": [
+          inputs: [],
+          name: "pyth",
+          outputs: [
             {
-              "internalType": "contract IPyth",
-              "name": "",
-              "type": "address"
-            }
+              internalType: "contract IPyth",
+              name: "",
+              type: "address",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
+          stateMutability: "view",
+          type: "function",
         },
         {
-          "inputs": [],
-          "name": "renounceOwnership",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
+          inputs: [],
+          name: "renounceOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes32",
-              "name": "_betId",
-              "type": "bytes32"
+              internalType: "bytes32",
+              name: "_betId",
+              type: "bytes32",
             },
             {
-              "internalType": "bytes[]",
-              "name": "_pythUpdateData",
-              "type": "bytes[]"
-            }
+              internalType: "bytes[]",
+              name: "_pythUpdateData",
+              type: "bytes[]",
+            },
           ],
-          "name": "resolveBet",
-          "outputs": [],
-          "stateMutability": "payable",
-          "type": "function"
+          name: "resolveBet",
+          outputs: [],
+          stateMutability: "payable",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "address",
-              "name": "newOwner",
-              "type": "address"
-            }
+              internalType: "address",
+              name: "newOwner",
+              type: "address",
+            },
           ],
-          "name": "transferOwnership",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
+          name: "transferOwnership",
+          outputs: [],
+          stateMutability: "nonpayable",
+          type: "function",
         },
         {
-          "inputs": [
+          inputs: [
             {
-              "internalType": "bytes32",
-              "name": "",
-              "type": "bytes32"
-            }
+              internalType: "bytes32",
+              name: "",
+              type: "bytes32",
+            },
           ],
-          "name": "usedSubdomains",
-          "outputs": [
+          name: "usedSubdomains",
+          outputs: [
             {
-              "internalType": "bool",
-              "name": "",
-              "type": "bool"
-            }
+              internalType: "bool",
+              name: "",
+              type: "bool",
+            },
           ],
-          "stateMutability": "view",
-          "type": "function"
-        }
-      ]
-    }
-  }
+          stateMutability: "view",
+          type: "function",
+        },
+      ],
+    },
+  },
 } as const;
 
 export default deployedContracts satisfies GenericContractsDeclaration;
