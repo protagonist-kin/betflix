@@ -301,16 +301,11 @@ contract Betflix is ReentrancyGuard, Ownable {
                     bet.ensSubdomain,
                     winner,
                     ensResolver,
-                    0, // ttl
-                    0, // fuses (no restrictions)
+                    0,
+                    0,
                     0 // expiry (no expiry)
                 )
-            returns (bytes32) {
-                // Success - subdomain created and transferred to winner
-            } catch {
-                // ENS transfer failed - continue without reverting
-                // This ensures bet resolution isn't blocked by ENS issues
-            }
+            returns (bytes32) {} catch {}
         }
 
         emit BetResolved(_betId, winner, loser, finalPrice.price, totalPot, bet.ensSubdomain);
